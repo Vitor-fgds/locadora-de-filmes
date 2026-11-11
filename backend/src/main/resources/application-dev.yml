@@ -1,0 +1,15 @@
+spring:
+  flyway:
+    # [ROTEIRO-1c-CONEXAO] Além das migrations versionadas, aplica o seed repeatable
+    # fora de backend/ (db/seed/R__dados_demo.sql). O prefixo "filesystem:" é resolvido
+    # relativo ao diretório de trabalho do processo Java, não ao classpath — como
+    # ./mvnw roda com cwd=backend/, "../db/seed" aponta para o repo-root/db/seed.
+    locations: classpath:db/migration,filesystem:../db/seed
+
+logging:
+  level:
+    # [ROTEIRO-1c-CONEXAO] Mostra o SQL gerado pelo Hibernate e o valor real de cada
+    # parâmetro ligado — só no perfil dev (nunca em produção: pode expor hash de senha
+    # no log). É a fonte do SQL copiado para a seção 4 de docs/BANCO_DE_DADOS.md.
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
