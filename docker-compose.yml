@@ -1,0 +1,26 @@
+# [ROTEIRO-1c-CONEXAO] Único serviço: PostgreSQL 17. O backend (Fase 2) conecta via
+# DB_URL/DB_USER/DB_PASSWORD, as mesmas variáveis usadas aqui para criar o banco.
+# Porta do host em 55432 (não a padrão 5432) para não conflitar com um Postgres
+# local ou com outro projeto que já use a porta padrão nesta máquina.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: locadora-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - locadora_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  locadora_pgdata:
+    name: locadora_pgdata

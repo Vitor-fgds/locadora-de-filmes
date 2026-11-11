@@ -26,7 +26,7 @@ Público: colegas e professor que **nunca viram o projeto** e precisam rodá-lo 
    **Frontend**: tabela de telas e rotas.
 10. **Banco de dados**: link para `docs/BANCO_DE_DADOS.md` e para o checklist do roteiro.
 11. **Solução de problemas**: `<details>` recolhíveis com os erros mais prováveis
-    (porta 5432 ocupada, Docker parado, Flyway checksum mismatch, 403 por CSRF).
+    (porta 55432 ocupada, Docker parado, Flyway checksum mismatch, 403 por CSRF).
 12. **Autores**: nomes do grupo.
 
 ## Estilo

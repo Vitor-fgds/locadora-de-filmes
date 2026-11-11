@@ -25,7 +25,8 @@ Ao final, revise o diff, rode os testes e faça commit você mesmo.
 Leia CLAUDE.md, docs/ROTEIRO.md e docs/bd1/script_original.sql. Use a skill roteiro-bd2.
 
 Crie a camada de banco, sem backend ainda:
-1. docker-compose.yml (só o serviço postgres:17-alpine, porta 127.0.0.1:5432,
+1. docker-compose.yml (só o serviço postgres:17-alpine, porta 127.0.0.1:55432
+   — não a padrão 5432, para não conflitar com um Postgres local ou outro projeto —
    volume nomeado, healthcheck pg_isready, credenciais via .env) e .env.example.
    .gitignore com .env.
 2. Migrations em backend/src/main/resources/db/migration:
