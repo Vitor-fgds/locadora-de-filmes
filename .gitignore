@@ -1,0 +1,8 @@
+.env
+.claude/settings.local.json
+backend/target/
+frontend/node_modules/
+frontend/dist/
+.idea/
+.vscode/
+*.log
