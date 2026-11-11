@@ -50,7 +50,7 @@ Verifique: `docker compose up -d` e aplique os scripts com `psql` para testar a 
 
 ---
 
-## [ ] Fase 2 — Esqueleto do backend e conexão (14–15/11)
+## [x] Fase 2 — Esqueleto do backend e conexão (14–15/11)
 
 ```
 Use as skills spring-api-padroes e roteiro-bd2. Consulte o Context7 para Spring Boot 4.1.

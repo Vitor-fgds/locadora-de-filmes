@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: locadora
+
+  # [ROTEIRO-1c-CONEXAO] DB_URL/DB_USER/DB_PASSWORD vêm só do ambiente do processo —
+  # sem valor padrão: se faltar uma, o Spring falha ao iniciar (fail fast) em vez de
+  # conectar no banco errado ou subir sem senha. A URL (definida em .env) já inclui
+  # escapeSyntaxCallMode=callIfNoReturn, exigido para CALL de stored procedure via JDBC.
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate # Flyway é o dono do schema; o Hibernate só confere
+    open-in-view: false
+
+  # [ROTEIRO-1c-CONEXAO] Perfil padrão (produção/CI): só as migrations versionadas
+  # dentro do jar. Repetido aqui mesmo sendo o default do Flyway porque o perfil dev
+  # (application-dev.yml) substitui esta lista inteira — YAML de perfil não faz merge
+  # de listas, então ela precisa reaparecer explícita nos dois arquivos.
+  flyway:
+    locations: classpath:db/migration
