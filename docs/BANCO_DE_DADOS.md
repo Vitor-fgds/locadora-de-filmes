@@ -19,7 +19,7 @@
 
 | Item | Onde | Marca no código |
 |---|---|---|
-| 1c Conexão | _a preencher_ | `[ROTEIRO-1c-CONEXAO]` |
+| 1c Conexão | `docker-compose.yml`, `backend/src/main/resources/application.yml`, `application-dev.yml` | `[ROTEIRO-1c-CONEXAO]` |
 | 1c Consultas e procedures | _a preencher_ | `[ROTEIRO-1c-CONSULTA]`, `[ROTEIRO-1c-PROCEDURE]` |
 | 2a Transações | _a preencher_ | `[ROTEIRO-2a-TRANSACAO]` |
 | 2b Junção | _a preencher_ | `[ROTEIRO-2b-JUNCAO]` |
@@ -31,7 +31,47 @@ Para listar todos os pontos: `grep -rn "\[ROTEIRO" backend/ docker-compose.yml`
 
 ## 2. Conexão com a base
 
-_a preencher na Fase 2_
+A cadeia de conexão tem quatro elos, cada um passando a configuração para o próximo:
+
+1. **`.env`** (raiz, fora do git) define `DB_NAME`, `DB_USER`, `DB_PASSWORD` e `DB_URL`
+   — a URL JDBC já inclui `escapeSyntaxCallMode=callIfNoReturn`, necessário para o
+   `CALL` de stored procedure via JDBC (ver seção 6 e skill `roteiro-bd2`).
+2. **`docker-compose.yml`** (`[ROTEIRO-1c-CONEXAO]`) sobe o PostgreSQL 17 lendo
+   `DB_NAME`/`DB_USER`/`DB_PASSWORD` do `.env` e publica a porta em `127.0.0.1:55432`
+   (não a 5432 padrão, para não conflitar com um Postgres local).
+3. **`backend/src/main/resources/application.yml`** (`[ROTEIRO-1c-CONEXAO]`) lê
+   `DB_URL`, `DB_USER` e `DB_PASSWORD` do ambiente do processo Java — **sem valor
+   padrão**:
+   ```yaml
+   spring:
+     datasource:
+       url: ${DB_URL}
+       username: ${DB_USER}
+       password: ${DB_PASSWORD}
+   ```
+   Se qualquer uma faltar, o Spring falha ao iniciar (fail fast) em vez de arriscar
+   conectar no banco errado ou sem senha.
+4. O **HikariCP** (pool padrão do Spring Boot) abre as conexões reais com essa URL; o
+   **Flyway** usa o mesmo `DataSource` para aplicar `V1`, `V2`, `V3` — e, só no perfil
+   `dev`, também `R__dados_demo.sql` — antes de qualquer bean que dependa do banco ser
+   criado. É por isso que `spring.jpa.hibernate.ddl-auto=validate` sempre encontra o
+   schema já pronto: o Hibernate nunca cria tabela, só confere.
+
+`spring.jpa.open-in-view=false` fecha a conexão ao final do service, não ao final da
+resposta HTTP — evita conexão aberta durante serialização e lazy-loading escondido na
+camada web (que viraria N+1 silencioso).
+
+**Como rodar:** `docker compose up -d` sobe o banco; em `backend/`, `./mvnw
+spring-boot:run -Dspring-boot.run.profiles=dev` herda as variáveis do `.env` do
+processo (exporte-as no shell ou configure-as na run configuration da IDE) e conecta.
+
+**Cuidado com o perfil dev:** `application-dev.yml` aponta
+`spring.flyway.locations: classpath:db/migration,filesystem:../db/seed`. O prefixo
+`filesystem:` é resolvido a partir do diretório de trabalho do processo Java, não do
+classpath — como o Maven roda com `cwd=backend/`, `../db/seed` chega ao `db/seed` da
+raiz do repositório. Se a IDE rodar com outro diretório de trabalho, ajuste-o para
+`backend/`. Testado via `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`: o log
+mostra a 4ª migration (`"dados demo"`, repeatable) aplicada depois de V1-V3.
 
 ## 3. Migrations (Flyway)
 
@@ -112,3 +152,25 @@ NULL);`), já que cada `CALL` de topo no `psql` autocommita.
 ## 7. Consultas com junção
 
 ## 8. Como ver o SQL gerado ao vivo
+
+O perfil `dev` (`application-dev.yml`) liga dois loggers do Hibernate:
+
+```yaml
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+```
+
+- `org.hibernate.SQL=DEBUG` imprime o SQL gerado, com `?` no lugar dos parâmetros.
+- `org.hibernate.orm.jdbc.bind=TRACE` imprime o valor real de cada `?`, na ordem.
+
+Para apresentar: `cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
+e acompanhe o console. Cada chamada a um método de repository (`save`, `findById`,
+`findAll`, `deleteById`...) imprime o `SELECT`/`INSERT`/`UPDATE`/`DELETE`
+correspondente — esse log é a fonte da tabela da seção 4 (Mapa de abstrações): copie o
+SQL real de lá, não invente.
+
+**Nunca** ligue esses loggers no perfil padrão: são verbosos e podem expor dados
+sensíveis no bind de parâmetro (ex.: o hash de `funcionario.senha`) no log de
+produção.
