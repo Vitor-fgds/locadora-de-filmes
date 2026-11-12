@@ -47,10 +47,24 @@ Apresentação: 01–02/12/2026. Escopo pequeno, código robusto.
 - Seguir a skill `spring-api-padroes` no backend e `readme-didatico` nos READMEs.
 - Segredos só via variáveis de ambiente / `.env` (no `.gitignore`). Nada de senha em código.
 
+## Frontend responsivo (requisito)
+
+Funciona bem em celular, tablet, notebook e monitor grande, de 320 px a 1920 px+.
+- Mobile-first: estilos base para telas pequenas; `min-width` nas media queries.
+  Breakpoints como tokens: 640, 768, 1024, 1280 px.
+- Sem rolagem horizontal da página em nenhuma largura. Tabelas largas viram lista de
+  cartões abaixo de 768 px (ou rolam dentro do próprio contêiner, nunca a página).
+- Menu lateral no desktop; menu recolhível (drawer) com botão acessível no celular.
+- Formulários em uma coluna no celular; alvos de toque com pelo menos 44×44 px;
+  `inputmode`/`type` corretos (email, tel, number, date).
+- Tipografia e espaçamentos fluidos com `clamp()`; unidades relativas (rem, %, dvh).
+- Funciona em retrato e paisagem, com zoom de 200% e navegação por teclado.
+
 ## Comandos
 
 ```bash
-docker compose up -d                       # sobe o PostgreSQL
+docker compose up -d                       # dev: sobe só o PostgreSQL
+docker compose --profile app up -d --build # sistema completo em Docker (após a Fase 7)
 cd backend && ./mvnw -q spring-boot:run -Dspring-boot.run.profiles=dev
 cd backend && ./mvnw -q verify             # testes (Testcontainers exige Docker)
 cd frontend && npm run dev                 # Vite com proxy /api -> :8080

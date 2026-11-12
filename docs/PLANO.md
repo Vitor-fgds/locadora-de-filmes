@@ -19,14 +19,13 @@ Ao final, revise o diff, rode os testes e faça commit você mesmo.
 
 ---
 
-## [ ] Fase 1 — Banco de dados (13/11)
+## [x] Fase 1 — Banco de dados (13/11)
 
 ```
 Leia CLAUDE.md, docs/ROTEIRO.md e docs/bd1/script_original.sql. Use a skill roteiro-bd2.
 
 Crie a camada de banco, sem backend ainda:
-1. docker-compose.yml (só o serviço postgres:17-alpine, porta 127.0.0.1:55432
-   — não a padrão 5432, para não conflitar com um Postgres local ou outro projeto —
+1. docker-compose.yml (só o serviço postgres:17-alpine, porta 127.0.0.1:5432,
    volume nomeado, healthcheck pg_isready, credenciais via .env) e .env.example.
    .gitignore com .env.
 2. Migrations em backend/src/main/resources/db/migration:
@@ -131,9 +130,18 @@ Depois crie frontend/ com Vite + React + TS strict, React Router, TanStack Query
 react-hook-form + zod, proxy /api → :8080, cliente HTTP que envia o header CSRF e trata
 401 (vai ao login) e ProblemDetail (mensagens nos formulários).
 Telas: login, layout com menu por perfil, página "Meu perfil".
+
+Responsividade é requisito, não acabamento: siga a seção "Frontend responsivo" do
+CLAUDE.md. Construa mobile-first: tokens de breakpoint, tipografia fluida com clamp(),
+layout com menu lateral no desktop que vira menu recolhível (drawer) no celular.
+Crie desde já os componentes base responsivos (container, grid, tabela que vira lista
+de cartões em telas estreitas, formulário em uma coluna no celular).
 ```
 
-## [ ] Fase 6b — Telas (25–27/11)
+Verifique: DevTools do navegador (`F12` → ícone de dispositivo) em 360, 768, 1024 e
+1440 px de largura, retrato e paisagem. Nenhuma rolagem horizontal, nada cortado.
+
+## [ ] Fase 6b — Telas (25–26/11)
 
 ```
 Use as skills frontend-design e vercel-react-best-practices.
@@ -141,16 +149,82 @@ Implemente as telas de RF02–RF11: listas paginadas com busca, formulários val
 fluxo de aluguel (escolher filme → exemplar disponível → cliente) e de devolução
 mostrando a multa calculada pela procedure, e página de relatórios.
 Esconda ações que o perfil não pode executar (o backend continua sendo a barreira real).
+Toda tela usa os componentes responsivos da Fase 6a e cumpre a seção "Frontend
+responsivo" do CLAUDE.md. Relatórios com tabelas largas: lista de cartões no celular.
+Ao final, revise cada tela nas larguras 360, 768, 1024 e 1440 px e corrija o que quebrar.
 ```
 
 ---
 
-## [ ] Fase 7 — Documentação e entrega (28–30/11)
+## [ ] Fase 7 — Aplicação completa em Docker, numa branch (27/11)
+
+Objetivo: qualquer computador com **apenas o Docker** roda o sistema inteiro.
+Antes de colar o prompt, confirme que a `main` está limpa (`git status`) e atualizada.
+
+```
+Crie a branch feature/docker-app a partir da main (git switch -c feature/docker-app)
+e trabalhe só nela. Consulte o Context7 para as imagens e o Spring Boot 4.1.
+
+Objetivo: rodar o sistema completo só com Docker, em dois containers: banco e aplicação.
+1. backend/Dockerfile multi-stage, com contexto na raiz do repositório:
+   - estágio node (LTS, alpine): npm ci e build do frontend;
+   - estágio eclipse-temurin:25-jdk: baixa dependências Maven em camada separada
+     (cache), copia o build do frontend para os recursos estáticos e gera o jar
+     (pule os testes aqui; eles rodam fora);
+   - estágio final eclipse-temurin:25-jre: só o jar, usuário não-root, porta 8080.
+   O Spring passa a servir o frontend na mesma origem da API: rotas que não são /api e
+   não são arquivos voltam para index.html (rotas do React Router); o Spring Security
+   libera os arquivos estáticos e mantém /api protegido. Nada muda no modo dev com Vite.
+2. Healthcheck da aplicação: spring-boot-starter-actuator expondo só /actuator/health.
+3. .dockerignore na raiz (node_modules, target, dist, .git, .env, .claude).
+4. docker-compose.yml: mantenha o serviço do banco como está e adicione o serviço app
+   no profile "app", com build do Dockerfile, depends_on do banco com
+   condition: service_healthy, variáveis vindas do .env (DB_URL apontando para o host
+   "db"), SPRING_PROFILES_ACTIVE configurável (padrão dev, para ter os dados de
+   demonstração), porta 127.0.0.1:8080 e restart: unless-stopped.
+   O fluxo de dev continua: "docker compose up -d" sobe só o banco;
+   "docker compose --profile app up -d --build" sobe tudo.
+5. Atualize .env.example e marque a configuração de conexão do container com
+   [ROTEIRO-1c-CONEXAO]; registre na seção 2 de docs/BANCO_DE_DADOS.md como a conexão
+   muda dentro do Docker (host db em vez de localhost).
+
+Validação obrigatória antes de concluir:
+- pare o ambiente de dev (docker compose stop) e teste num projeto isolado, para não
+  apagar o banco de dev: docker compose -p locadora-teste --profile app up -d --build
+  (banco novo do zero: todas as migrations e o seed precisam rodar);
+- os dois containers ficam healthy (docker compose -p locadora-teste ps);
+- curl em /actuator/health retorna UP; http://localhost:8080 abre o login;
+- login com o usuário ADMIN de demonstração e um GET autenticado a /api funcionam;
+- ./mvnw -q verify e npm run build continuam passando;
+- no fim, docker compose -p locadora-teste --profile app down -v (só o projeto de teste).
+Faça commits pequenos e descritivos na branch. Não faça merge nem push: ao terminar,
+liste o que eu devo testar manualmente.
+```
+
+Teste você mesmo seguindo a lista que ele devolver (de preferência num computador de
+um colega, só com Docker instalado). **Se tudo funcionar**, faça o merge pela pull request:
+
+```bash
+git push -u origin feature/docker-app
+gh pr create --fill --base main
+gh pr merge --merge --delete-branch
+git switch main && git pull
+```
+
+Se algo falhar, continue na branch com `/clear` e descreva o erro ao Claude Code
+(cole a saída de `docker compose --profile app logs app`).
+
+---
+
+## [ ] Fase 8 — Documentação e entrega (28–30/11)
 
 ```
 Use a skill readme-didatico. Escreva README.md (raiz, índice curto), backend/README.md
-e frontend/README.md. Revise docs/BANCO_DE_DADOS.md inteiro: confira cada arquivo:linha
-e cada SQL contra o código e o log atuais; complete o checklist do roteiro.
+e frontend/README.md. No README da raiz, o "Início rápido" principal é o modo Docker
+(docker compose --profile app up -d --build, só Docker necessário); o modo de
+desenvolvimento (JDK + Node + Vite) vem em seguida. Revise docs/BANCO_DE_DADOS.md
+inteiro: confira cada arquivo:linha e cada SQL contra o código e o log atuais;
+complete o checklist do roteiro.
 ```
 
 Entrega: `git archive --format=zip -o NOME_DO_GRUPO.zip HEAD` (inclui as migrations, que
