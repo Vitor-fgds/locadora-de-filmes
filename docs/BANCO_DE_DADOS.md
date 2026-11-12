@@ -87,6 +87,7 @@ mostra a 4ª migration (`"dados demo"`, repeatable) aplicada depois de V1-V3.
 | Método / anotação | Arquivo | SQL executado (copiado do log) | Roteiro |
 |---|---|---|---|
 | `FuncionarioRepository.findByEmail(email)` — query derivada, chamada no login por `FuncionarioUserDetailsService.loadUserByUsername` (RF01) | `FuncionarioRepository.java:11`, `FuncionarioUserDetailsService.java:27` | `select f1_0.id_funcionario,f1_0.bairro,f1_0.cidade,f1_0.email,f1_0.perfil,f1_0.primeiro_nome,f1_0.rua,f1_0.senha,f1_0.sobrenome,f1_0.telefone from funcionario f1_0 where f1_0.email=?` | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
+| `FuncionarioRepository.findCredenciaisById(id)` — query derivada **com projeção** (`FuncionarioCredenciais`): revalida a sessão a cada requisição autenticada (`SessaoRevalidacaoFilter`) | `FuncionarioRepository.java:17`, `SessaoRevalidacaoFilter.java:46` | `select f1_0.perfil,f1_0.senha from funcionario f1_0 where f1_0.id_funcionario=?` (só 2 colunas; vazio = conta excluída) | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
 | `FilmeRepository.save(filme)` com id nulo — `FilmeService.criar` (RF02) | `FilmeService.java:43` | `insert into filme (data_lancamento,descricao,duracao_minutos,nome) values (?,?,?,?)` | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-INSERT]` |
 | `FilmeRepository.findAll(pageable)` — `FilmeService.listar` | `FilmeService.java:26` | `select f1_0.id_filme,f1_0.data_lancamento,f1_0.descricao,f1_0.duracao_minutos,f1_0.nome from filme f1_0 order by f1_0.id_filme offset ? rows fetch first ? rows only` + `select count(f1_0.id_filme) from filme f1_0` (o `count` só roda quando a página vem cheia) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-SELECT]` |
 | `FilmeRepository.findByNomeContainingIgnoreCase(nome, pageable)` — query derivada da busca `?nome=` | `FilmeRepository.java:12`, chamada em `FilmeService.java:28` | `select f1_0.id_filme,... from filme f1_0 where upper(f1_0.nome) like upper(?) escape '\' order by f1_0.id_filme fetch first ? rows only` (bind: `%matr%`) | `[ROTEIRO-FW-MAPEAMENTO]` |
@@ -119,6 +120,14 @@ antes de excluir: ele manda o `delete` e o PostgreSQL recusa pela FK (`fk_alugue
 constraint. Só `filme_ator` apaga em cascata (`ON DELETE CASCADE`). Como a verificação é do
 banco, ela vale mesmo com dois usuários excluindo ao mesmo tempo. Email repetido em
 cliente/funcionário (`cliente_email_key`, `funcionario_email_key`) também vira 409.
+
+**Sessão não fica com autorização "velha".** O perfil vai para a sessão no login; sem
+cuidado, rebaixar, trocar a senha ou excluir um funcionário não afetaria as sessões que ele já
+tem abertas. Por isso a sessão guarda também um carimbo (SHA-256 de perfil + hash da senha) e o
+`SessaoRevalidacaoFilter` roda a consulta `findCredenciaisById` (linha acima) a cada requisição
+autenticada. Conta excluída ou carimbo diferente → a sessão é invalidada e a requisição segue
+como anônima (401 em `ProblemDetail`). Custo: um `SELECT` de 2 colunas por requisição, pela PK.
+Trocar nome, rua etc. não muda o carimbo e não derruba ninguém.
 
 Depois do SELECT, o hash BCrypt de `senha` é comparado com a senha digitada pelo
 `BCryptPasswordEncoder` (no Java, não no banco). Email inexistente e senha errada geram a
