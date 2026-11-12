@@ -141,7 +141,7 @@ de cartões em telas estreitas, formulário em uma coluna no celular).
 Verifique: DevTools do navegador (`F12` → ícone de dispositivo) em 360, 768, 1024 e
 1440 px de largura, retrato e paisagem. Nenhuma rolagem horizontal, nada cortado.
 
-## [ ] Fase 6b — Telas (25–26/11)
+## [x] Fase 6b — Telas (25–26/11)
 
 ```
 Use as skills frontend-design e vercel-react-best-practices.

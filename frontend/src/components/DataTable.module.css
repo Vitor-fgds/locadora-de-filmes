@@ -108,7 +108,7 @@
   .tabela td,
   .tabela th {
     display: table-cell;
-    padding: var(--espaco-3) var(--espaco-4);
+    padding: var(--espaco-3); /* mais justo até 1280 px: tabelas largas cabem ao lado do menu */
     border-block-end: 1px solid var(--linha);
     text-align: start;
     vertical-align: top;
@@ -136,5 +136,12 @@
   .tabela .direita {
     text-align: end;
     white-space: nowrap; /* "R$ 12,50" nunca parte em duas linhas */
+  }
+}
+
+@media (--xl) {
+  .tabela td,
+  .tabela th {
+    padding-inline: var(--espaco-4);
   }
 }

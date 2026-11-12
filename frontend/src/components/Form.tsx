@@ -11,7 +11,7 @@ export function FormGrid({ children }: { children: ReactNode }) {
   return <div className={estilos.grade}>{children}</div>
 }
 
-/** Botões do formulário: empilhados e largos no celular, lado a lado no desktop. */
+/** Botões do formulário: empilhados e largos no celular, lado a lado no desktop. A ação principal vem primeiro. */
 export function FormActions({ children }: { children: ReactNode }) {
   return <div className={estilos.acoes}>{children}</div>
 }

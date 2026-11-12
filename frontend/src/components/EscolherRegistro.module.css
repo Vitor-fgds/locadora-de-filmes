@@ -1,0 +1,36 @@
+.caixa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.opcao {
+  display: block;
+  inline-size: 100%;
+  min-block-size: var(--alvo-toque);
+  padding: var(--espaco-2) var(--espaco-4);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  text-align: start;
+  cursor: pointer;
+}
+
+.opcao:hover {
+  border-color: var(--petroleo);
+  background: var(--petroleo-suave);
+}
+
+.nota {
+  color: var(--grafite);
+  font-size: var(--texto-pequeno);
+}
