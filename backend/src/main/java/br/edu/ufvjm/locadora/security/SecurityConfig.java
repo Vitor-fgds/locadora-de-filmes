@@ -1,5 +1,6 @@
 package br.edu.ufvjm.locadora.security;
 
+import br.edu.ufvjm.locadora.funcionario.FuncionarioRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -25,6 +26,7 @@ import org.springframework.security.web.authentication.session.ChangeSessionIdAu
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
@@ -39,6 +41,7 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http,
+                                    FuncionarioRepository funcionarioRepository,
                                     CookieCsrfTokenRepository csrfTokenRepository,
                                     SecurityContextRepository securityContextRepository,
                                     @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
@@ -56,6 +59,9 @@ public class SecurityConfig {
                 .securityContext(context -> context.securityContextRepository(securityContextRepository))
                 // API JSON: nada de guardar a requisição na sessão para redirecionar depois.
                 .requestCache(cache -> cache.disable())
+                // Depois que a sessão carrega o usuário e antes de qualquer regra de acesso:
+                // derruba a sessão de quem foi rebaixado, trocou a senha ou teve a conta excluída.
+                .addFilterAfter(new SessaoRevalidacaoFilter(funcionarioRepository), SecurityContextHolderFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
