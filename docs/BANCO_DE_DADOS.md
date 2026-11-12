@@ -20,7 +20,7 @@
 | Item | Onde | Marca no código |
 |---|---|---|
 | 1c Conexão | `docker-compose.yml`, `backend/src/main/resources/application.yml`, `application-dev.yml` | `[ROTEIRO-1c-CONEXAO]` |
-| 1c Consultas e procedures | _a preencher_ | `[ROTEIRO-1c-CONSULTA]`, `[ROTEIRO-1c-PROCEDURE]` |
+| 1c Consultas e procedures | Consulta de login: `FuncionarioRepository.findByEmail` e `FuncionarioUserDetailsService` (seção 4). Procedure: _a preencher_ | `[ROTEIRO-1c-CONSULTA]`, `[ROTEIRO-1c-PROCEDURE]` |
 | 2a Transações | _a preencher_ | `[ROTEIRO-2a-TRANSACAO]` |
 | 2b Junção | _a preencher_ | `[ROTEIRO-2b-JUNCAO]` |
 | 2c Stored procedure com parâmetro | _a preencher_ | `[ROTEIRO-2c-PROCEDURE]` |
@@ -86,6 +86,11 @@ mostra a 4ª migration (`"dados demo"`, repeatable) aplicada depois de V1-V3.
 
 | Método / anotação | Arquivo | SQL executado (copiado do log) | Roteiro |
 |---|---|---|---|
+| `FuncionarioRepository.findByEmail(email)` — query derivada, chamada no login por `FuncionarioUserDetailsService.loadUserByUsername` (RF01) | `FuncionarioRepository.java:11`, `FuncionarioUserDetailsService.java:27` | `select f1_0.id_funcionario,f1_0.bairro,f1_0.cidade,f1_0.email,f1_0.perfil,f1_0.primeiro_nome,f1_0.rua,f1_0.senha,f1_0.sobrenome,f1_0.telefone from funcionario f1_0 where f1_0.email=?` | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
+
+Depois do SELECT, o hash BCrypt de `senha` é comparado com a senha digitada pelo
+`BCryptPasswordEncoder` (no Java, não no banco). Email inexistente e senha errada geram a
+mesma resposta 401 "Credenciais inválidas".
 
 ## 5. Transações
 

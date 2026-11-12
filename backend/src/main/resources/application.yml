@@ -22,3 +22,13 @@ spring:
   # de listas, então ela precisa reaparecer explícita nos dois arquivos.
   flyway:
     locations: classpath:db/migration
+
+# Cookie de sessão (JSESSIONID): HttpOnly impede o JavaScript de ler; SameSite=Lax não
+# envia o cookie em POSTs vindos de outros sites (segunda barreira além do CSRF token).
+# O atributo Secure (só HTTPS) fica para a revisão da Fase 5: o dev roda em http.
+server:
+  servlet:
+    session:
+      cookie:
+        http-only: true
+        same-site: lax

@@ -68,7 +68,7 @@ Preencha a seção 2 (Conexão) e 8 de docs/BANCO_DE_DADOS.md.
 
 ---
 
-## [ ] Fase 3 — Spring Security (16/11)
+## [x] Fase 3 — Spring Security (16/11)
 
 ```
 Use a skill spring-api-padroes (seção Segurança). Consulte o Context7 para Spring
