@@ -81,7 +81,7 @@ rota ADMIN, POST sem CSRF rejeitado.
 
 ---
 
-## [ ] Fase 4a — Cadastros (17–19/11)
+## [x] Fase 4a — Cadastros (17–19/11)
 
 ```
 Implemente RF02–RF06 de docs/REQUISITOS.md seguindo spring-api-padroes:
@@ -92,7 +92,7 @@ checking, deleteById/delete) com [ROTEIRO-FW-MAPEAMENTO] + [ROTEIRO-2d-*] e pree
 seção 4 de docs/BANCO_DE_DADOS.md com o SQL real do log.
 ```
 
-## [ ] Fase 4b — Aluguel, devolução e consultas (20–21/11)
+## [x] Fase 4b — Aluguel, devolução e consultas (20–21/11)
 
 ```
 Implemente RF07 (transação no service com lock pessimista no exemplar), RF08 (chamada

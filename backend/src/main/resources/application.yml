@@ -11,6 +11,12 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
+  # Paginação: tamanho máximo de página 50, qualquer ?size= maior é reduzido.
+  data:
+    web:
+      pageable:
+        max-page-size: 50
+
   jpa:
     hibernate:
       ddl-auto: validate # Flyway é o dono do schema; o Hibernate só confere

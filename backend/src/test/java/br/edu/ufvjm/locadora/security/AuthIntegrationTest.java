@@ -1,6 +1,5 @@
 package br.edu.ufvjm.locadora.security;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -11,6 +10,7 @@ import br.edu.ufvjm.locadora.TestcontainersConfiguration;
 import br.edu.ufvjm.locadora.funcionario.Funcionario;
 import br.edu.ufvjm.locadora.funcionario.FuncionarioRepository;
 import br.edu.ufvjm.locadora.funcionario.Perfil;
+import br.edu.ufvjm.locadora.support.ApiSessao;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,34 +19,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 // Segurança ponta a ponta contra um Postgres real (Testcontainers): login por email +
 // BCrypt, sessão, 401/403 em ProblemDetail e CSRF.
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import({TestcontainersConfiguration.class, AuthIntegrationTest.RotaAdminDeTeste.class})
+@Import(TestcontainersConfiguration.class)
 class AuthIntegrationTest {
 
     private static final String SENHA = "senha-de-teste";
-
-    // Ainda não existe rota ADMIN real (vem na Fase 4a): esta só serve para provar que
-    // @PreAuthorize responde 403 ao ATENDENTE.
-    @RestController
-    static class RotaAdminDeTeste {
-        @GetMapping("/api/teste/admin")
-        @PreAuthorize("hasRole('ADMIN')")
-        String soAdmin() {
-            return "ok";
-        }
-    }
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,17 +40,22 @@ class AuthIntegrationTest {
     private FuncionarioRepository funcionarioRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    private ApiSessao api;
 
     @BeforeEach
     void criaFuncionarios() {
-        funcionarioRepository.deleteAll();
+        ApiSessao.limparBanco(jdbcTemplate);
+        api = new ApiSessao(mockMvc);
         funcionarioRepository.save(funcionario("admin@teste.com", Perfil.ADMIN));
         funcionarioRepository.save(funcionario("atendente@teste.com", Perfil.ATENDENTE));
     }
 
     @Test
     void loginOkDevolveUsuarioSemSenhaEMantemSessao() throws Exception {
-        MvcResult resultado = mockMvc.perform(comCsrf(login("atendente@teste.com", SENHA)))
+        MvcResult resultado = mockMvc.perform(api.comCsrf(ApiSessao.login("atendente@teste.com", SENHA)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("atendente@teste.com"))
                 .andExpect(jsonPath("$.perfil").value("ATENDENTE"))
@@ -72,19 +63,19 @@ class AuthIntegrationTest {
                 .andExpect(jsonPath("$.password").doesNotExist())
                 .andReturn();
 
-        mockMvc.perform(get("/api/auth/me").session(sessaoDe(resultado)))
+        mockMvc.perform(get("/api/auth/me").session(ApiSessao.sessaoDe(resultado)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("atendente@teste.com"));
     }
 
     @Test
     void senhaErradaEEmailInexistenteDaoMesmaMensagemGenerica() throws Exception {
-        mockMvc.perform(comCsrf(login("atendente@teste.com", "senha-errada")))
+        mockMvc.perform(api.comCsrf(ApiSessao.login("atendente@teste.com", "senha-errada")))
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.detail").value("Credenciais inválidas"));
 
-        mockMvc.perform(comCsrf(login("naoexiste@teste.com", SENHA)))
+        mockMvc.perform(api.comCsrf(ApiSessao.login("naoexiste@teste.com", SENHA)))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.detail").value("Credenciais inválidas"));
     }
@@ -99,22 +90,22 @@ class AuthIntegrationTest {
 
     @Test
     void atendenteEmRotaAdminRecebe403EAdminPassa() throws Exception {
-        MockHttpSession atendente = sessaoDe(mockMvc
-                .perform(comCsrf(login("atendente@teste.com", SENHA))).andReturn());
-        mockMvc.perform(get("/api/teste/admin").session(atendente))
+        MockHttpSession atendente = ApiSessao.sessaoDe(mockMvc
+                .perform(api.comCsrf(ApiSessao.login("atendente@teste.com", SENHA))).andReturn());
+        mockMvc.perform(get("/api/funcionarios").session(atendente))
                 .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.status").value(403));
 
-        MockHttpSession admin = sessaoDe(mockMvc
-                .perform(comCsrf(login("admin@teste.com", SENHA))).andReturn());
-        mockMvc.perform(get("/api/teste/admin").session(admin))
+        MockHttpSession admin = ApiSessao.sessaoDe(mockMvc
+                .perform(api.comCsrf(ApiSessao.login("admin@teste.com", SENHA))).andReturn());
+        mockMvc.perform(get("/api/funcionarios").session(admin))
                 .andExpect(status().isOk());
     }
 
     @Test
     void postSemCsrfERejeitadoMesmoComCredenciaisValidas() throws Exception {
-        mockMvc.perform(login("admin@teste.com", SENHA))
+        mockMvc.perform(ApiSessao.login("admin@teste.com", SENHA))
                 .andExpect(status().isForbidden())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.detail").value("Token CSRF ausente ou inválido"));
@@ -124,19 +115,19 @@ class AuthIntegrationTest {
     // faz o navegador enviá-lo); a requisição precisa repetir o valor no header.
     @Test
     void cookieCsrfSemHeaderERejeitado() throws Exception {
-        Cookie cookie = pedeCookieCsrf();
+        Cookie cookie = api.pedeCookieCsrf();
 
-        mockMvc.perform(login("admin@teste.com", SENHA).cookie(cookie))
+        mockMvc.perform(ApiSessao.login("admin@teste.com", SENHA).cookie(cookie))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.detail").value("Token CSRF ausente ou inválido"));
     }
 
     @Test
     void logoutEncerraASessao() throws Exception {
-        MockHttpSession sessao = sessaoDe(mockMvc
-                .perform(comCsrf(login("admin@teste.com", SENHA))).andReturn());
+        MockHttpSession sessao = ApiSessao.sessaoDe(mockMvc
+                .perform(api.comCsrf(ApiSessao.login("admin@teste.com", SENHA))).andReturn());
 
-        mockMvc.perform(comCsrf(post("/api/auth/logout").session(sessao)))
+        mockMvc.perform(api.comCsrf(post("/api/auth/logout").session(sessao)))
                 .andExpect(status().isNoContent());
 
         mockMvc.perform(get("/api/auth/me").session(sessao))
@@ -155,32 +146,5 @@ class AuthIntegrationTest {
         f.setSenha(passwordEncoder.encode(SENHA));
         f.setPerfil(perfil);
         return f;
-    }
-
-    // Faz o que o front faz: GET /api/auth/csrf → cookie XSRF-TOKEN → reenvia o valor no
-    // header X-XSRF-TOKEN. Não usa o csrf() do spring-security-test: ele troca o
-    // CsrfTokenRepository do filtro compartilhado e esconderia o contrato real do cookie.
-    private MockHttpServletRequestBuilder comCsrf(MockHttpServletRequestBuilder requisicao) throws Exception {
-        Cookie cookie = pedeCookieCsrf();
-        return requisicao.cookie(cookie).header("X-XSRF-TOKEN", cookie.getValue());
-    }
-
-    private Cookie pedeCookieCsrf() throws Exception {
-        MvcResult resultado = mockMvc.perform(get("/api/auth/csrf"))
-                .andExpect(status().isNoContent())
-                .andReturn();
-        Cookie cookie = resultado.getResponse().getCookie("XSRF-TOKEN");
-        assertThat(cookie).isNotNull();
-        return cookie;
-    }
-
-    private static MockHttpServletRequestBuilder login(String email, String senha) {
-        return post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"email\":\"%s\",\"senha\":\"%s\"}".formatted(email, senha));
-    }
-
-    private static MockHttpSession sessaoDe(MvcResult resultado) {
-        return (MockHttpSession) resultado.getRequest().getSession(false);
     }
 }
