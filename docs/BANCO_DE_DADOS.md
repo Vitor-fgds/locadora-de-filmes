@@ -38,7 +38,10 @@ A cadeia de conexão tem quatro elos, cada um passando a configuração para o p
    `CALL` de stored procedure via JDBC (ver seção 6 e skill `roteiro-bd2`).
 2. **`docker-compose.yml`** (`[ROTEIRO-1c-CONEXAO]`) sobe o PostgreSQL 17 lendo
    `DB_NAME`/`DB_USER`/`DB_PASSWORD` do `.env` e publica a porta em `127.0.0.1:55432`
-   (não a 5432 padrão, para não conflitar com um Postgres local).
+   (não a 5432 padrão, para não conflitar com um Postgres local). As três variáveis são
+   **obrigatórias** (`${DB_PASSWORD:?...}`): sem o `.env`, o `docker compose` para com
+   erro, em vez de criar o banco com usuário e senha vazios. O `.env.example` deixa
+   `DB_PASSWORD` vazio de propósito.
 3. **`backend/src/main/resources/application.yml`** (`[ROTEIRO-1c-CONEXAO]`) lê
    `DB_URL`, `DB_USER` e `DB_PASSWORD` do ambiente do processo Java — **sem valor
    padrão**:
@@ -72,6 +75,14 @@ classpath — como o Maven roda com `cwd=backend/`, `../db/seed` chega ao `db/se
 raiz do repositório. Se a IDE rodar com outro diretório de trabalho, ajuste-o para
 `backend/`. Testado via `./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`: o log
 mostra a 4ª migration (`"dados demo"`, repeatable) aplicada depois de V1-V3.
+
+**Limitação conhecida:** a aplicação conecta com o mesmo usuário que a imagem do
+Postgres cria (`DB_USER`, superusuário do banco). O ideal em produção seria um role
+só com `SELECT/INSERT/UPDATE/DELETE` e `EXECUTE` na procedure; ficou fora do escopo.
+
+**Cookie de sessão:** `application.yml` marca o `JSESSIONID` como `Secure` (só HTTPS).
+O perfil `dev` desliga isso, porque `http://localhost` não é HTTPS e o navegador
+descartaria o cookie.
 
 ## 3. Migrations (Flyway)
 

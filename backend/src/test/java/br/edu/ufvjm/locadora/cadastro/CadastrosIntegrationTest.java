@@ -203,6 +203,17 @@ class CadastrosIntegrationTest {
         mockMvc.perform(get("/api/funcionarios").session(atendente)).andExpect(status().isForbidden());
     }
 
+    // 40 × "ç" = 40 caracteres mas 80 bytes: o BCrypt só aceita 72 bytes → 400, não 500.
+    @Test
+    void senhaDeFuncionarioComMaisDe72BytesRetorna400() throws Exception {
+        String novo = """
+                {"primeiroNome":"Novo","sobrenome":"Func","rua":"Rua B","bairro":"Centro","cidade":"Mucuri",
+                 "email":"longa@teste.com","telefone":"33988880000","senha":"%s","perfil":"ATENDENTE"}"""
+                .formatted("ç".repeat(40));
+        mockMvc.perform(json(post("/api/funcionarios"), admin, novo))
+                .andExpect(status().isBadRequest());
+    }
+
     @Test
     void adminNaoExcluiNemRebaixaASiMesmo() throws Exception {
         mockMvc.perform(api.comCsrf(delete("/api/funcionarios/" + idAdmin).session(admin)))

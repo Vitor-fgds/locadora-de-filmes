@@ -31,10 +31,12 @@ spring:
 
 # Cookie de sessão (JSESSIONID): HttpOnly impede o JavaScript de ler; SameSite=Lax não
 # envia o cookie em POSTs vindos de outros sites (segunda barreira além do CSRF token).
-# O atributo Secure (só HTTPS) fica para a revisão da Fase 5: o dev roda em http.
+# Secure: o navegador só envia o cookie por HTTPS. Seguro por padrão; o perfil dev
+# (http://localhost) desliga em application-dev.yml.
 server:
   servlet:
     session:
       cookie:
         http-only: true
         same-site: lax
+        secure: true
