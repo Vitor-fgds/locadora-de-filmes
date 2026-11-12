@@ -120,7 +120,7 @@ Use o agente code-simplifier nos pacotes aluguel e security; não mude comportam
 
 ---
 
-## [ ] Fase 6a — Fundação do frontend e identidade visual (23–24/11)
+## [x] Fase 6a — Fundação do frontend e identidade visual (23–24/11)
 
 ```
 Use a skill frontend-design. O projeto não tem identidade visual: proponha uma direção

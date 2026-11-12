@@ -1,0 +1,16 @@
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3) var(--espaco-5);
+  margin-block-end: var(--espaco-5);
+  padding-block-end: var(--espaco-4);
+  border-block-end: 1px solid var(--linha);
+}
+
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-3);
+}
