@@ -60,10 +60,6 @@ public final class UsuarioAutenticado implements UserDetails, CredentialsContain
         }
     }
 
-    public String getVersaoCredenciais() {
-        return versaoCredenciais;
-    }
-
     public Integer getId() {
         return id;
     }
@@ -78,6 +74,10 @@ public final class UsuarioAutenticado implements UserDetails, CredentialsContain
 
     public Perfil getPerfil() {
         return perfil;
+    }
+
+    public String getVersaoCredenciais() {
+        return versaoCredenciais;
     }
 
     // Perfil ADMIN vira a authority ROLE_ADMIN, usada por hasRole('ADMIN').

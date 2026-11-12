@@ -104,7 +104,7 @@ transação de aluguel.
 
 ---
 
-## [ ] Fase 5 — Revisão de qualidade e segurança (22/11)
+## [x] Fase 5 — Revisão de qualidade e segurança (22/11)
 
 Rode em sessões separadas e peça correções só do que for real:
 

@@ -6,6 +6,14 @@ spring:
     # ./mvnw roda com cwd=backend/, "../db/seed" aponta para o repo-root/db/seed.
     locations: classpath:db/migration,filesystem:../db/seed
 
+# Dev e o container da Fase 7 rodam em http://: com Secure o navegador descartaria o
+# cookie de sessão e o login não "pegaria". Nunca desligar fora do perfil dev.
+server:
+  servlet:
+    session:
+      cookie:
+        secure: false
+
 logging:
   level:
     # [ROTEIRO-1c-CONEXAO] Mostra o SQL gerado pelo Hibernate e o valor real de cada
