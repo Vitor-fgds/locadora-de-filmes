@@ -1,31 +1,118 @@
 package br.edu.ufvjm.locadora.security;
 
+import java.util.List;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
+import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
-// Segurança provisória da Fase 2: tudo autenticado, sem UserDetailsService próprio —
-// o Spring Boot cria um único usuário em memória com senha gerada no log de boot. A
-// Fase 3 substitui isso por login por funcionario.email + BCrypt + sessão, sem precisar
-// remover nada daqui: basta declarar um UserDetailsService real, que desativa o
-// autogerado automaticamente.
+// Autenticação por sessão (cookie JSESSIONID HttpOnly), sem JWT. O login é JSON
+// (AuthController); a autorização por perfil fica nos controllers com @PreAuthorize.
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain filterChain(HttpSecurity http,
+                                    CookieCsrfTokenRepository csrfTokenRepository,
+                                    SecurityContextRepository securityContextRepository,
+                                    @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        // 401/403 gerados nos filtros (sem sessão, CSRF inválido) são repassados ao
+        // GlobalExceptionHandler, que responde em ProblemDetail como os demais erros.
+        AuthenticationEntryPoint naoAutenticado =
+                (request, response, ex) -> resolver.resolveException(request, response, null, ex);
+        AccessDeniedHandler acessoNegado =
+                (request, response, ex) -> resolver.resolveException(request, response, null, ex);
+
         http
-                // [ROTEIRO-1c-CONEXAO] Nenhum endpoint é público nesta fase.
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                // httpBasic (não formLogin): devolve 401 + WWW-Authenticate em vez de
-                // redirecionar para uma página HTML de login — compatível com a API
-                // JSON que a Fase 3 constrói em POST /api/auth/login. CSRF fica ligado
-                // no padrão; a configuração de CSRF para SPA é da Fase 3.
-                .httpBasic(Customizer.withDefaults());
+                // CSRF ligado, no modo SPA: token no cookie XSRF-TOKEN (legível pelo JS) e
+                // conferido no header X-XSRF-TOKEN em todo método que altera estado.
+                .csrf(csrf -> csrf.spa().csrfTokenRepository(csrfTokenRepository))
+                .securityContext(context -> context.securityContextRepository(securityContextRepository))
+                // API JSON: nada de guardar a requisição na sessão para redirecionar depois.
+                .requestCache(cache -> cache.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/auth/csrf").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .anyRequest().authenticated())
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(naoAutenticado)
+                        .accessDeniedHandler(acessoNegado))
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler(HttpStatus.NO_CONTENT))
+                        .deleteCookies("JSESSIONID"));
         return http.build();
+    }
+
+    // Lê o hash "$2a$..." gravado pelo seed (pgcrypto) e pelos cadastros da Fase 4a.
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    AuthenticationManager authenticationManager(UserDetailsService userDetailsService,
+                                                PasswordEncoder passwordEncoder) {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
+        return new ProviderManager(provider);
+    }
+
+    // Grava o SecurityContext na HttpSession; o mesmo bean é usado pelo filtro (para ler)
+    // e pelo AuthController (para salvar após o login).
+    @Bean
+    SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
+    }
+
+    @Bean
+    CookieCsrfTokenRepository csrfTokenRepository() {
+        CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+        repository.setCookieCustomizer(cookie -> cookie.sameSite("Lax"));
+        return repository;
+    }
+
+    // Executada pelo AuthController no login: troca o id da sessão (session fixation) e
+    // descarta o token CSRF anterior — o mesmo que o formLogin faria automaticamente.
+    @Bean
+    SessionAuthenticationStrategy sessionAuthenticationStrategy(CookieCsrfTokenRepository csrfTokenRepository) {
+        return new CompositeSessionAuthenticationStrategy(List.of(
+                new ChangeSessionIdAuthenticationStrategy(),
+                new CsrfAuthenticationStrategy(csrfTokenRepository)));
+    }
+
+    // ADMIN herda tudo que o ATENDENTE pode: @PreAuthorize("hasRole('ATENDENTE')") também
+    // libera o ADMIN. Usado automaticamente pelo @EnableMethodSecurity e pelas regras de URL.
+    @Bean
+    static RoleHierarchy roleHierarchy() {
+        return RoleHierarchyImpl.withDefaultRolePrefix()
+                .role("ADMIN").implies("ATENDENTE")
+                .build();
     }
 }
