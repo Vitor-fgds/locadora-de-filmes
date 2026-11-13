@@ -44,6 +44,10 @@
   background: #831e18;
 }
 
+.link {
+  text-decoration: none;
+}
+
 .giro {
   inline-size: 1em;
   block-size: 1em;

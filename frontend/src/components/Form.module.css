@@ -12,7 +12,7 @@
 
 .acoes {
   display: flex;
-  flex-direction: column-reverse; /* ação principal em cima, ao alcance do polegar */
+  flex-direction: column; /* ação principal (primeira) fica em cima, ao alcance do polegar */
   gap: var(--espaco-3);
 }
 

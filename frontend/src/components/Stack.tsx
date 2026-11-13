@@ -3,7 +3,7 @@ import estilos from './Stack.module.css'
 
 interface Props {
   children: ReactNode
-  gap?: 2 | 3 | 4 | 5 | 6
+  gap?: 2 | 3 | 4 | 5 | 6 | 7
 }
 
 export function Stack({ children, gap = 4 }: Props) {

@@ -1,0 +1,30 @@
+.etiqueta {
+  display: inline-block;
+  padding: 0.125rem var(--espaco-2);
+  border: 1px solid;
+  border-radius: var(--raio-controle);
+  font-size: var(--texto-pequeno);
+  font-weight: 600;
+  line-height: 1.4;
+  /* Etiquetas longas ("Em atraso há 10 dias") podem quebrar em colunas estreitas. */
+  max-inline-size: 100%;
+  overflow-wrap: normal; /* nunca parte "Devolvido" no meio da palavra */
+}
+
+.ok {
+  border-color: var(--disponivel);
+  background: #e8f3ed;
+  color: #1f4d38;
+}
+
+.neutro {
+  border-color: var(--petroleo);
+  background: var(--petroleo-suave);
+  color: var(--petroleo-escuro);
+}
+
+.atencao {
+  border-color: var(--ambar);
+  background: var(--ambar-suave);
+  color: var(--ambar-texto);
+}

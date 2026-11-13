@@ -1,0 +1,14 @@
+.titulo {
+  font-size: var(--texto-h2);
+}
+
+.descricao {
+  margin-block: var(--espaco-1) var(--espaco-4);
+  color: var(--grafite);
+}
+
+.total {
+  margin-block-start: var(--espaco-3);
+  max-inline-size: none;
+  font-variant-numeric: tabular-nums;
+}

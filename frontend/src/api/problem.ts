@@ -31,3 +31,10 @@ export class ApiError extends Error {
 }
 
 export const ehApiError = (erro: unknown): erro is ApiError => erro instanceof ApiError
+
+/** Texto pronto para mostrar ao usuário (em <Alert>, diálogo…) a partir de qualquer erro. */
+export function textoDoErro(erro: unknown): string {
+  if (!ehApiError(erro)) return 'Não foi possível falar com o servidor. Tente de novo.'
+  if (erro.erros.length > 0) return erro.erros.map((e) => `${e.campo}: ${e.mensagem}`).join(' · ')
+  return erro.detail ?? erro.title ?? 'Algo deu errado. Tente de novo.'
+}

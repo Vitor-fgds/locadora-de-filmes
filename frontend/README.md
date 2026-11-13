@@ -83,26 +83,45 @@ Usuários de demonstração (**só para desenvolvimento**):
 
 ```text
 src/
-├── api/          http.ts (fetch + CSRF + 401), problem.ts (ProblemDetail), formErrors.ts
-├── auth/         sessão: authApi, useUsuario, guardas de rota, menu por perfil
-├── components/   base responsiva: Container, Grid, Stack, DataTable, Form, Field, Button…
+├── api/
+│   ├── http.ts, problem.ts, formErrors.ts   fetch + CSRF + 401, ProblemDetail, erros nos formulários
+│   ├── recurso.ts                           fábrica do CRUD padrão (lista, um, salvar, excluir)
+│   ├── tipos.ts                             DTOs do backend
+│   └── recursos/                            cadastros, filmeDetalhe, alugueis, relatorios
+├── auth/         sessão: authApi, useUsuario, usePode, guardas de rota, menu por perfil
+├── components/   base responsiva: Container, Grid, Stack, DataTable, Form, Field, Button,
+│                 Dialogo, ConfirmDialog, ListaPagina, SearchBox, Paginacao, Etapas, Etiqueta…
 ├── layout/       AppShell (menu lateral ↔ drawer) e MenuLateral
-├── pages/        telas: Login, Perfil, Sem permissão, Não encontrada
+├── lib/          formato.ts (dinheiro, datas, telefone), useListaUrl.ts (busca/página na URL)
+├── pages/        uma pasta por assunto: aluguel, clientes, filmes, atores, funcionarios, relatorios
 ├── styles/       tokens.css (design tokens), breakpoints.css/.ts, global.css
-├── router.tsx    rotas
+├── router.tsx    rotas (cada tela carrega sob demanda)
 └── main.tsx      ponto de entrada
 ```
 
 ## Telas e rotas
 
-| Rota | Perfil | Situação |
-|---|---|---|
-| `/login` | público | pronta |
-| `/perfil` | todos | pronta |
-| `/alugueis/novo`, `/devolucoes`, `/historico`, `/clientes`, `/filmes`, `/atores` | ATENDENTE e ADMIN | reservada (Fase 6b) |
-| `/funcionarios`, `/relatorios` | ADMIN | reservada (Fase 6b) |
+| Rota | Perfil | O que faz | Requisito |
+|---|---|---|---|
+| `/login` | público | entrar com email e senha | RF01 |
+| `/perfil` | todos | dados da conta e sair | RF01 |
+| `/alugueis/novo` | ATENDENTE, ADMIN | aluguel em 4 etapas: filme → exemplar disponível → cliente → confirmação | RF07, RF09 |
+| `/devolucoes` | ATENDENTE, ADMIN | aluguéis em aberto; registrar devolução e ver a multa calculada pelo banco | RF08 |
+| `/historico` | ATENDENTE, ADMIN | histórico com filtro por cliente e "só em aberto" | RF10 |
+| `/clientes`, `/clientes/novo`, `/clientes/:id` | ATENDENTE, ADMIN (excluir: ADMIN) | lista com busca, cadastro e edição | RF05 |
+| `/filmes`, `/filmes/:id` | ATENDENTE, ADMIN | lista com busca; detalhe com exemplares, disponibilidade e elenco | RF02, RF03, RF04, RF09 |
+| `/filmes/novo`, `/filmes/:id/editar` | ADMIN | cadastro e edição de filme; no detalhe: exemplares e elenco | RF02, RF03, RF04 |
+| `/atores` | ATENDENTE, ADMIN | lista com busca | RF03 |
+| `/atores/novo`, `/atores/:id` | ADMIN | cadastro e edição | RF03 |
+| `/funcionarios`, `/funcionarios/novo`, `/funcionarios/:id` | ADMIN | lista com busca, cadastro e edição (perfil, senha) | RF06 |
+| `/relatorios` | ADMIN | faturamento por funcionário, exemplares por filme, filmes com mais de um ator | RF11 |
 
-A tela de quem não tem permissão é só conveniência: **o backend é a barreira real**.
+Quem não tem o perfil vê "Sem permissão", e os botões que não pode usar nem aparecem.
+Isso é só conveniência: **o backend é a barreira real**.
+
+> [!NOTE]
+> A multa **não** é calculada no navegador. A tela de devolução mostra o valor devolvido pela
+> stored procedure `sp_registrar_devolucao`; antes de confirmar, exibe só o atraso previsto em dias.
 
 ## Identidade visual
 

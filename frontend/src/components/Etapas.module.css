@@ -1,0 +1,59 @@
+.resumo {
+  color: var(--grafite);
+}
+
+.resumo strong {
+  color: var(--tinta);
+}
+
+.lista {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (--md) {
+  .resumo {
+    display: none;
+  }
+
+  .lista {
+    display: flex;
+    gap: var(--espaco-5);
+  }
+
+  .item {
+    display: flex;
+    align-items: center;
+    gap: var(--espaco-2);
+    color: var(--grafite);
+  }
+
+  .numero {
+    display: grid;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border: 1px solid var(--linha-forte);
+    border-radius: 50%;
+    font-size: var(--texto-pequeno);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .atual {
+    color: var(--tinta);
+    font-weight: 600;
+  }
+
+  .atual .numero {
+    border-color: var(--petroleo);
+    background: var(--petroleo);
+    color: #fff;
+  }
+
+  .feita .numero {
+    border-color: var(--petroleo);
+    color: var(--petroleo);
+  }
+}

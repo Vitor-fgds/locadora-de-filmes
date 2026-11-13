@@ -1,0 +1,49 @@
+.discreto {
+  color: var(--grafite);
+}
+
+.bloco {
+  display: block;
+}
+
+.semQuebra {
+  white-space: nowrap;
+}
+
+.resultado {
+  margin: 0;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  font-variant-numeric: tabular-nums;
+}
+
+.resultado > div {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-1) var(--espaco-4);
+  padding: var(--espaco-3) var(--espaco-4);
+}
+
+.resultado > div + div {
+  border-block-start: 1px solid var(--linha);
+}
+
+.resultado dt {
+  color: var(--grafite);
+}
+
+.resultado dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.total {
+  background: var(--petroleo-suave);
+}
+
+.total dt,
+.total dd {
+  color: var(--petroleo-escuro);
+}

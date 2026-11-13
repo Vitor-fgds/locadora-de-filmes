@@ -90,6 +90,30 @@ class CadastrosIntegrationTest {
                 .andExpect(jsonPath("$.content[0].nome").value("Matrix"));
     }
 
+    // Busca ?nome= (sem diferenciar maiúsculas) em nome OU sobrenome: atores e funcionários.
+    @Test
+    void buscaPorNomeFiltraAtoresEFuncionarios() throws Exception {
+        mockMvc.perform(json(post("/api/atores"), admin,
+                "{\"primeiroNome\":\"Keanu\",\"sobrenome\":\"Reeves\"}")).andExpect(status().isCreated());
+        mockMvc.perform(json(post("/api/atores"), admin,
+                "{\"primeiroNome\":\"Carrie\",\"sobrenome\":\"Moss\"}")).andExpect(status().isCreated());
+
+        mockMvc.perform(get("/api/atores").param("nome", "REEV").session(atendente))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].primeiroNome").value("Keanu"));
+        mockMvc.perform(get("/api/atores").param("nome", "  ").session(atendente))
+                .andExpect(jsonPath("$.page.totalElements").value(2));
+
+        // dados.criaFuncionario usa o perfil como sobrenome: "ATENDENTE" casa só com o atendente.
+        mockMvc.perform(get("/api/funcionarios").param("nome", "atend").session(admin))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page.totalElements").value(1))
+                .andExpect(jsonPath("$.content[0].perfil").value("ATENDENTE"));
+        mockMvc.perform(get("/api/funcionarios").param("nome", "atend").session(atendente))
+                .andExpect(status().isForbidden());
+    }
+
     @Test
     void validacaoRetorna400ComListaDeCampos() throws Exception {
         String invalido = """
