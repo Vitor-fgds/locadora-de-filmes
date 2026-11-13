@@ -17,6 +17,11 @@ spring:
       pageable:
         max-page-size: 50
 
+  # Fase 7: o único handler de recursos estáticos é o SpaConfig (arquivo ou index.html).
+  web:
+    resources:
+      add-mappings: false
+
   jpa:
     hibernate:
       ddl-auto: validate # Flyway é o dono do schema; o Hibernate só confere
@@ -28,6 +33,17 @@ spring:
   # de listas, então ela precisa reaparecer explícita nos dois arquivos.
   flyway:
     locations: classpath:db/migration
+
+# Fase 7: healthcheck do container. Só /actuator/health é exposto, sem detalhes (não vaza
+# estado interno); o Security libera apenas esse GET (SecurityConfig).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 # Cookie de sessão (JSESSIONID): HttpOnly impede o JavaScript de ler; SameSite=Lax não
 # envia o cookie em POSTs vindos de outros sites (segunda barreira além do CSRF token).

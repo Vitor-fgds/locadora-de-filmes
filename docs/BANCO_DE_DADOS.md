@@ -84,6 +84,38 @@ só com `SELECT/INSERT/UPDATE/DELETE` e `EXECUTE` na procedure; ficou fora do es
 O perfil `dev` desliga isso, porque `http://localhost` não é HTTPS e o navegador
 descartaria o cookie.
 
+### Dentro do Docker (`--profile app`)
+
+`docker compose --profile app up -d --build` sobe um segundo container, `app`
+(`[ROTEIRO-1c-CONEXAO]` em `docker-compose.yml`), com a API e o frontend. A cadeia é a
+mesma, mas **o endereço do banco muda**:
+
+| | Dev (`mvnw` no seu computador) | Container `app` |
+|---|---|---|
+| Host | `localhost` | `db` (alias de rede do serviço `postgres`) |
+| Porta | `55432` (publicada no host) | `5432` (porta real do Postgres, rede interna) |
+| `DB_URL` | vem do `.env` | montada no `docker-compose.yml`; o `DB_URL` do `.env` é ignorado |
+| `DB_USER` / `DB_PASSWORD` | `.env` | `.env` (repassadas pelo compose) |
+
+Dentro de um container, `localhost` é o próprio container — apontar para
+`localhost:55432` falharia. O `escapeSyntaxCallMode=callIfNoReturn` continua na URL.
+
+Detalhes que importam:
+
+- **Ordem de subida:** `depends_on: postgres: condition: service_healthy` — o `app` só
+  inicia depois que o `pg_isready` do banco passa. Assim o Flyway nunca encontra o
+  banco ainda fora do ar.
+- **Seed:** o perfil padrão do container é `dev` (`SPRING_PROFILES_ACTIVE`, configurável
+  no `.env`). Nele, o Flyway lê `filesystem:../db/seed`; com o diretório de trabalho
+  `/app` isso é `/db/seed`, onde o compose monta `./db/seed` (somente leitura). A imagem
+  contém só o jar. Em outro perfil rodam só `V1`–`V3`.
+- **Nomes por projeto:** container e volume do banco são `${COMPOSE_PROJECT_NAME}-postgres`
+  e `${COMPOSE_PROJECT_NAME}_pgdata`. No uso normal (`locadora`) nada muda; um teste
+  isolado (`docker compose -p locadora-teste ...`) ganha banco e volume próprios, e o
+  `down -v` dele não toca nos dados de desenvolvimento.
+- **Healthcheck do app:** `GET /actuator/health` (único endpoint do actuator exposto,
+  sem detalhes).
+
 ## 3. Migrations (Flyway)
 
 | Versão | Arquivo | O que faz |
