@@ -1,0 +1,10 @@
+# Mantém o contexto de build pequeno e fora dele os segredos e artefatos locais.
+**/node_modules
+**/target
+**/dist
+.git
+.env
+.claude
+.idea
+.vscode
+*.log
