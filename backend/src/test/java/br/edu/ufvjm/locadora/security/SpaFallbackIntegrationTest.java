@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import br.edu.ufvjm.locadora.TestcontainersConfiguration;
@@ -42,6 +43,13 @@ class SpaFallbackIntegrationTest {
     @Test
     void apiContinuaProtegidaEnaoCaiNoIndex() throws Exception {
         mockMvc.perform(get("/api/clientes")).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void healthPublicoEDemaisEndpointsDoActuatorNaoExpostos() throws Exception {
+        mockMvc.perform(get("/actuator/health")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UP"));
+        mockMvc.perform(get("/actuator/env")).andExpect(status().isNotFound());
     }
 
     @Test
