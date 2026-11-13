@@ -17,17 +17,29 @@
 
 ## 1. Checklist do roteiro
 
-| Item | Onde | Marca no código |
-|---|---|---|
-| 1c Conexão | `docker-compose.yml`, `backend/src/main/resources/application.yml`, `application-dev.yml` | `[ROTEIRO-1c-CONEXAO]` |
-| 1c Consultas e procedures | Consulta de login: `FuncionarioRepository.findByEmail` e `FuncionarioUserDetailsService` (seção 4). Procedure e relatórios: seções 6 e 7 | `[ROTEIRO-1c-CONSULTA]`, `[ROTEIRO-1c-PROCEDURE]` |
-| 2a Transações | `AluguelService.registrar` (`@Transactional` + lock) e `AluguelService.devolver` — seção 5 | `[ROTEIRO-2a-TRANSACAO]` |
-| 2b Junção | Elenco do filme: `FilmeAtorRepository.findElencoByFilme` (seção 4); histórico e relatórios: seção 7 | `[ROTEIRO-2b-JUNCAO]` |
-| 2c Stored procedure com parâmetro | `V3__procedures.sql` + `AluguelService.devolver` — seção 6 | `[ROTEIRO-2c-PROCEDURE]` |
-| 2d SELECT / INSERT / UPDATE / DELETE | `FilmeService` (criar, listar, atualizar, excluir) e `ElencoService` — seção 4 | `[ROTEIRO-2d-*]` |
-| Mapeamento do framework | seção 4 | `[ROTEIRO-FW-MAPEAMENTO]` |
+Cada item do roteiro oficial do trabalho e onde mostrá-lo (todos ✅ implementados e conferidos contra o
+código e o log SQL do perfil `dev`):
 
-Para listar todos os pontos: `grep -rn "\[ROTEIRO" backend/ docker-compose.yml`
+| Item | Status | Onde | Marca no código |
+|---|---|---|---|
+| 1a Requisitos funcionais | ✅ | [`docs/REQUISITOS.md`](REQUISITOS.md) | — |
+| 1b Sistema em execução | ✅ | [`README.md`](../README.md): Início rápido (Docker) e roteiro de demonstração | — |
+| 1c Conexão | ✅ | `docker-compose.yml`, `.env.example`, `backend/pom.xml`, `backend/src/main/resources/application.yml`, `application-dev.yml` — seção 2 | `[ROTEIRO-1c-CONEXAO]` |
+| 1c Consultas | ✅ | Login: `FuncionarioRepository.findByEmail` e `FuncionarioUserDetailsService` (seção 4); histórico e relatórios: seção 7 | `[ROTEIRO-1c-CONSULTA]` |
+| 1c Stored procedure (chamada) | ✅ | `AluguelService.devolver` — seção 6 | `[ROTEIRO-1c-PROCEDURE]` |
+| 2a Transações | ✅ | `AluguelService.registrar` (`@Transactional` + lock) e `AluguelService.devolver` — seção 5 | `[ROTEIRO-2a-TRANSACAO]` |
+| 2b Junção | ✅ | Elenco do filme: `FilmeAtorRepository.findElencoByFilme` (seção 4); histórico (5 tabelas) e relatórios: seção 7 | `[ROTEIRO-2b-JUNCAO]` |
+| 2c Stored procedure com parâmetro | ✅ | `V3__procedures.sql` + `AluguelService.devolver` — seção 6 | `[ROTEIRO-2c-PROCEDURE]` |
+| 2d SELECT / INSERT / UPDATE / DELETE | ✅ | `FilmeService` (listar, criar, atualizar, excluir) e `ElencoService` — seção 4 | `[ROTEIRO-2d-SELECT]` `[ROTEIRO-2d-INSERT]` `[ROTEIRO-2d-UPDATE]` `[ROTEIRO-2d-DELETE]` |
+| Mais de uma estrutura de armazenamento | ✅ | 6 tabelas e 6 FKs do BD1 (`V1__schema_bd1.sql`) — seção 3 | — |
+| Mapeamento do framework (JPA/Spring Data) | ✅ | Mapa de abstrações — seção 4 | `[ROTEIRO-FW-MAPEAMENTO]` |
+| Entrega: código + estruturas do banco | ✅ | `git archive --format=zip -o NOME_DO_GRUPO.zip HEAD` leva `backend/src/main/resources/db/migration/` (V1–V3) e `db/seed/` | — |
+
+Para listar todos os pontos (só arquivos versionados, sem `node_modules` nem `target`):
+
+```bash
+git grep -n "\[ROTEIRO" -- backend db docker-compose.yml .env.example
+```
 
 ## 2. Conexão com a base
 
@@ -129,11 +141,11 @@ Detalhes que importam:
 
 | Método / anotação | Arquivo | SQL executado (copiado do log) | Roteiro |
 |---|---|---|---|
-| `FuncionarioRepository.findByEmail(email)` — query derivada, chamada no login por `FuncionarioUserDetailsService.loadUserByUsername` (RF01) | `FuncionarioRepository.java:11`, `FuncionarioUserDetailsService.java:27` | `select f1_0.id_funcionario,f1_0.bairro,f1_0.cidade,f1_0.email,f1_0.perfil,f1_0.primeiro_nome,f1_0.rua,f1_0.senha,f1_0.sobrenome,f1_0.telefone from funcionario f1_0 where f1_0.email=?` | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
-| `FuncionarioRepository.findCredenciaisById(id)` — query derivada **com projeção** (`FuncionarioCredenciais`): revalida a sessão a cada requisição autenticada (`SessaoRevalidacaoFilter`) | `FuncionarioRepository.java:17`, `SessaoRevalidacaoFilter.java:46` | `select f1_0.perfil,f1_0.senha from funcionario f1_0 where f1_0.id_funcionario=?` (só 2 colunas; vazio = conta excluída) | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
+| `FuncionarioRepository.findByEmail(email)` — query derivada, chamada no login por `FuncionarioUserDetailsService.loadUserByUsername` (RF01) | `FuncionarioRepository.java:13`, `FuncionarioUserDetailsService.java:27` | `select f1_0.id_funcionario,f1_0.bairro,f1_0.cidade,f1_0.email,f1_0.perfil,f1_0.primeiro_nome,f1_0.rua,f1_0.senha,f1_0.sobrenome,f1_0.telefone from funcionario f1_0 where f1_0.email=?` | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
+| `FuncionarioRepository.findCredenciaisById(id)` — query derivada **com projeção** (`FuncionarioCredenciais`): revalida a sessão a cada requisição autenticada (`SessaoRevalidacaoFilter`) | `FuncionarioRepository.java:19`, `SessaoRevalidacaoFilter.java:46` | `select f1_0.perfil,f1_0.senha from funcionario f1_0 where f1_0.id_funcionario=?` (só 2 colunas; vazio = conta excluída) | `[ROTEIRO-1c-CONSULTA]` `[ROTEIRO-FW-MAPEAMENTO]` |
 | `FilmeRepository.save(filme)` com id nulo — `FilmeService.criar` (RF02) | `FilmeService.java:43` | `insert into filme (data_lancamento,descricao,duracao_minutos,nome) values (?,?,?,?)` | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-INSERT]` |
 | `FilmeRepository.findAll(pageable)` — `FilmeService.listar` | `FilmeService.java:26` | `select f1_0.id_filme,f1_0.data_lancamento,f1_0.descricao,f1_0.duracao_minutos,f1_0.nome from filme f1_0 order by f1_0.id_filme offset ? rows fetch first ? rows only` + `select count(f1_0.id_filme) from filme f1_0` (o `count` só roda quando a página vem cheia) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-SELECT]` |
-| `FilmeRepository.findByNomeContainingIgnoreCase(nome, pageable)` — query derivada da busca `?nome=` | `FilmeRepository.java:12`, chamada em `FilmeService.java:28` | `select f1_0.id_filme,... from filme f1_0 where upper(f1_0.nome) like upper(?) escape '\' order by f1_0.id_filme fetch first ? rows only` (bind: `%matr%`) | `[ROTEIRO-FW-MAPEAMENTO]` |
+| `FilmeRepository.findByNomeContainingIgnoreCase(nome, pageable)` — query derivada da busca `?nome=` | `FilmeRepository.java:15`, chamada em `FilmeService.java:28` | `select f1_0.id_filme,... from filme f1_0 where upper(f1_0.nome) like upper(?) escape '\' order by f1_0.id_filme fetch first ? rows only` (bind: `%matr%`) | `[ROTEIRO-FW-MAPEAMENTO]` |
 | `FilmeRepository.findById(id)` — `FilmeService.obter`, base de GET, PUT e DELETE | `FilmeService.java:67` | `select f1_0.id_filme,f1_0.data_lancamento,f1_0.descricao,f1_0.duracao_minutos,f1_0.nome from filme f1_0 where f1_0.id_filme=?` | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-SELECT]` |
 | **Dirty checking** — `FilmeService.atualizar` (RF02): carrega com `findById`, muda os setters, **não chama `save()`**; o UPDATE sai no COMMIT | `FilmeService.java:53` | `update filme set data_lancamento=?,descricao=?,duracao_minutos=?,nome=? where id_filme=?` (precedido do `select ... where f1_0.id_filme=?` do `findById`) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-UPDATE]` |
 | `FilmeRepository.delete(filme)` — `FilmeService.excluir` | `FilmeService.java:63` | `delete from filme where id_filme=?` (`filme_ator` some pelo `ON DELETE CASCADE` do V2; filme com exemplares → erro de FK → 409) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-DELETE]` |
@@ -142,13 +154,13 @@ Detalhes que importam:
 | `FilmeAtorRepository.deleteById(id)` — desvincular | `ElencoService.java:67` | `select fa1_0.id_ator,fa1_0.id_filme from filme_ator fa1_0 where (fa1_0.id_ator,fa1_0.id_filme) in ((?,?))` → `delete from filme_ator where id_ator=? and id_filme=?` | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-DELETE]` |
 | `FilmeAtorRepository.findElencoByFilme(idFilme)` — `@Query` JPQL com **JOIN** (elenco do filme, `GET /api/filmes/{id}/atores`) | `FilmeAtorRepository.java:19` (JPQL em `:15-18`) | `select a1_0.id_ator,a1_0.primeiro_nome,a1_0.sobrenome from filme_ator fa1_0 join ator a1_0 on a1_0.id_ator=fa1_0.id_ator where fa1_0.id_filme=? order by a1_0.primeiro_nome,a1_0.sobrenome,a1_0.id_ator` | `[ROTEIRO-2b-JUNCAO]` |
 | `ClienteRepository.findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase` — busca `?nome=` de clientes (RF05) | `ClienteRepository.java:12`, chamada em `ClienteService.java:29` | `select c1_0.id_cliente,c1_0.bairro,c1_0.cidade,c1_0.email,c1_0.primeiro_nome,c1_0.rua,c1_0.sobrenome,c1_0.telefone from cliente c1_0 where upper(c1_0.primeiro_nome) like upper(?) escape '\' or upper(c1_0.sobrenome) like upper(?) escape '\' order by c1_0.id_cliente fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
-| `AtorRepository.findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase` — busca `?nome=` de atores (RF03), mesmo padrão da de clientes | `AtorRepository.java:12`, chamada em `AtorService.java:29` | `select a1_0.id_ator,a1_0.primeiro_nome,a1_0.sobrenome from ator a1_0 where upper(a1_0.primeiro_nome) like upper(?) escape '' or upper(a1_0.sobrenome) like upper(?) escape '' order by a1_0.id_ator fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
-| `FuncionarioRepository.findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase` — busca `?nome=` de funcionários (RF06, só ADMIN) | `FuncionarioRepository.java:24`, chamada em `FuncionarioService.java:34` | `select f1_0.id_funcionario,f1_0.bairro,f1_0.cidade,f1_0.email,f1_0.perfil,f1_0.primeiro_nome,f1_0.rua,f1_0.senha,f1_0.sobrenome,f1_0.telefone from funcionario f1_0 where upper(f1_0.primeiro_nome) like upper(?) escape '' or upper(f1_0.sobrenome) like upper(?) escape '' order by f1_0.id_funcionario fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
+| `AtorRepository.findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase` — busca `?nome=` de atores (RF03), mesmo padrão da de clientes | `AtorRepository.java:12`, chamada em `AtorService.java:29` | `select a1_0.id_ator,a1_0.primeiro_nome,a1_0.sobrenome from ator a1_0 where upper(a1_0.primeiro_nome) like upper(?) escape '\' or upper(a1_0.sobrenome) like upper(?) escape '\' order by a1_0.id_ator fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
+| `FuncionarioRepository.findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase` — busca `?nome=` de funcionários (RF06, só ADMIN) | `FuncionarioRepository.java:24`, chamada em `FuncionarioService.java:34` | `select f1_0.id_funcionario,f1_0.bairro,f1_0.cidade,f1_0.email,f1_0.perfil,f1_0.primeiro_nome,f1_0.rua,f1_0.senha,f1_0.sobrenome,f1_0.telefone from funcionario f1_0 where upper(f1_0.primeiro_nome) like upper(?) escape '\' or upper(f1_0.sobrenome) like upper(?) escape '\' order by f1_0.id_funcionario fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
 | `ClienteRepository.delete(cliente)` — `ClienteService.excluir`. Cliente com aluguéis → **409** (RN03) | `ClienteService.java:53` | `delete from cliente where id_cliente=?` (o PostgreSQL recusa pela FK `fk_aluguel_cliente`) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-DELETE]` |
-| `ExemplarFilmeRepository.findByFilmeId(idFilme, pageable)` — exemplares de um filme (RF04) | `ExemplarFilmeRepository.java:11`, chamada em `ExemplarService.java:30` | `select ef1_0.id_exemplar,ef1_0.status,ef1_0.id_filme from exemplar_filme ef1_0 where ef1_0.id_filme=? order by ef1_0.id_exemplar fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
+| `ExemplarFilmeRepository.findByFilmeId(idFilme, pageable)` — exemplares de um filme (RF04) | `ExemplarFilmeRepository.java:18`, chamada em `ExemplarService.java:32` | `select ef1_0.id_exemplar,ef1_0.status,ef1_0.id_filme from exemplar_filme ef1_0 where ef1_0.id_filme=? order by ef1_0.id_exemplar fetch first ? rows only` | `[ROTEIRO-FW-MAPEAMENTO]` |
 | `ExemplarFilmeRepository.findByIdParaAluguel(id)` — `@Lock(PESSIMISTIC_WRITE)`, 1º passo do aluguel (RF07) | `ExemplarFilmeRepository.java:27`, chamada em `AluguelService.java:56` | `select ef1_0.id_exemplar,ef1_0.status,ef1_0.id_filme from exemplar_filme ef1_0 where ef1_0.id_exemplar=? for no key update of ef1_0` | `[ROTEIRO-2a-TRANSACAO]` `[ROTEIRO-FW-MAPEAMENTO]` |
 | `AluguelRepository.save(aluguel)` — 2º passo do aluguel | `AluguelService.java:73` | `insert into aluguel (id_cliente,data_aluguel,data_devolucao,data_entrega,id_exemplar,id_funcionario,valor_aluguel,valor_multa) values (?,?,?,?,?,?,?,?)` | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-INSERT]` |
-| **Dirty checking** do exemplar — 3º passo do aluguel (`exemplar.setAlugado(true)`, sem `save()`) | `AluguelService.java:76` | `update exemplar_filme set status=?,id_filme=? where id_exemplar=?` (bind: `true`, `1`, `2`; o Hibernate regrava todas as colunas da entidade) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-UPDATE]` |
+| **Dirty checking** do exemplar — 3º passo do aluguel (`exemplar.setAlugado(true)`, sem `save()`) | `AluguelService.java:76` | `update exemplar_filme set status=?,id_filme=? where id_exemplar=?` (bind: `true`, `3`, `13`; o Hibernate regrava todas as colunas da entidade) | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-UPDATE]` |
 | `AluguelRepository.existsById(id)` — confere se o aluguel existe antes da devolução | `AluguelService.java:90` | `select count(*) from aluguel a1_0 where a1_0.id_aluguel=?` | `[ROTEIRO-FW-MAPEAMENTO]` `[ROTEIRO-2d-SELECT]` |
 
 **Mesmos mecanismos nos outros cadastros (RF02–RF06).** `Ator`, `Cliente`, `Funcionario` e
@@ -186,7 +198,7 @@ Duas funcionalidades gravam em mais de uma tabela e por isso rodam em transaçã
 
 ### 5.1 Registrar aluguel (RF07)
 
-`AluguelService.registrar` (`AluguelService.java:54`) é um único `@Transactional`. Três
+`AluguelService.registrar` (`AluguelService.java:55`) é um único `@Transactional`. Três
 comandos SQL, todos ou nenhum:
 
 | Passo | Java | SQL (copiado do log) |
@@ -249,7 +261,7 @@ isso, no log, ele aparece logo antes do `SELECT` da resposta.
 
 ### 5.2 Registrar devolução (RF08)
 
-`AluguelService.devolver` (`AluguelService.java:86`) abre a transação e chama a stored
+`AluguelService.devolver` (`AluguelService.java:87`) abre a transação e chama a stored
 procedure por dentro dela. A procedure faz `SELECT ... FOR UPDATE`, dois `UPDATE` (aluguel e
 exemplar) e **não** dá `COMMIT`: quem confirma é o Spring, ao fim do método. Se a procedure
 levantar erro (`P0001`), o Java converte em 422 e o Spring faz `ROLLBACK`. Detalhes na
@@ -317,7 +329,7 @@ NULL);`), já que cada `CALL` de topo no `psql` autocommita.
 
 ### Como o Java chama a procedure
 
-`AluguelService.devolver` (`AluguelService.java:86`) — `[ROTEIRO-1c-PROCEDURE]`
+`AluguelService.devolver` (`AluguelService.java:87`) — `[ROTEIRO-1c-PROCEDURE]`
 `[ROTEIRO-2c-PROCEDURE]`:
 
 ```java
@@ -345,15 +357,15 @@ jdbcTemplate.execute("{call sp_registrar_devolucao(?, ?, ?)}", (CallableStatemen
    procedure alterasse a linha por fora do JPA.
 4. **Erro da procedure → 422.** O driver devolve `SQLState = P0001` (o `ERRCODE` do `RAISE`);
    o service percorre a cadeia de causas, acha a `SQLException` com esse estado e lança
-   `RegraNegocioException` com o texto do próprio `RAISE` (ex.: `Aluguel 2 já foi devolvido
-   em 2026-11-12`), que o `GlobalExceptionHandler` transforma em HTTP 422. Aluguel
+   `RegraNegocioException` com o texto do próprio `RAISE` (ex.: `Aluguel 3 já foi devolvido
+   em 2026-11-13`), que o `GlobalExceptionHandler` transforma em HTTP 422. Aluguel
    inexistente nem chega ao `CALL` (404). Qualquer outro erro de banco segue como 500.
 5. **Resposta:** depois do `CALL`, o service lê o aluguel pela consulta JOIN da seção 7 — já
    com `data_devolucao` e `valor_multa` gravados pela procedure.
 
-Exemplo real (dev, `POST /api/alugueis/2/devolucao` sem corpo → hoje, `2026-11-12`; aluguel
-com entrega prevista em `2026-06-12`): 153 dias de atraso × R$ 2,00 = `valorMulta: 306.00`.
-Repetir a chamada devolve 422 `Aluguel 2 já foi devolvido em 2026-11-12`.
+Exemplo real (dev, `POST /api/alugueis/3/devolucao` sem corpo → hoje, `2026-11-13`; aluguel
+com entrega prevista em `2026-06-14`): 152 dias de atraso × R$ 2,00 = `valorMulta: 304.00`.
+Repetir a chamada devolve 422 `Aluguel 3 já foi devolvido em 2026-11-13`.
 
 ## 7. Consultas com junção
 
@@ -470,8 +482,15 @@ logging:
 - `org.hibernate.SQL=DEBUG` imprime o SQL gerado, com `?` no lugar dos parâmetros.
 - `org.hibernate.orm.jdbc.bind=TRACE` imprime o valor real de cada `?`, na ordem.
 
-Para apresentar: `cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev`
-e acompanhe o console. Cada chamada a um método de repository (`save`, `findById`,
+Para apresentar, acompanhe o console de um destes dois modos (o perfil `dev` é o padrão
+do container):
+
+```bash
+cd backend && ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev   # modo desenvolvimento
+docker compose logs -f app                                            # modo Docker (--profile app)
+```
+
+No Docker, filtre com `docker compose logs -f app | grep "org.hibernate.SQL"`. Cada chamada a um método de repository (`save`, `findById`,
 `findAll`, `deleteById`...) imprime o `SELECT`/`INSERT`/`UPDATE`/`DELETE`
 correspondente — esse log é a fonte da tabela da seção 4 (Mapa de abstrações): copie o
 SQL real de lá, não invente.
