@@ -290,4 +290,8 @@ git archive --format=zip -o NOME_DO_GRUPO.zip HEAD
 
 ## Autores
 
-- Vitor Rocha Fagundes
+- João Marcos Campelo
+- Vitor Fagundes
+- Isabella Baracho
+- Catarina Cotta Lannes
+- Dayvid Eduardo

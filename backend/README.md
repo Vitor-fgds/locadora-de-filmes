@@ -244,4 +244,8 @@ o 403 é de perfil: a rota exige `ADMIN`.
 
 ## Autores
 
-- Vitor Rocha Fagundes
+- João Marcos Campelo
+- Vitor Fagundes
+- Isabella Baracho
+- Catarina Cotta Lannes
+- Dayvid Eduardo

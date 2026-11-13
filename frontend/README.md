@@ -177,4 +177,8 @@ A sessão expirou ou a conta mudou de perfil. Entre de novo: você volta para a 
 
 ## Autores
 
-- Vitor Rocha Fagundes
+- João Marcos Campelo
+- Vitor Fagundes
+- Isabella Baracho
+- Catarina Cotta Lannes
+- Dayvid Eduardo
