@@ -156,7 +156,7 @@ Ao final, revise cada tela nas larguras 360, 768, 1024 e 1440 px e corrija o que
 
 ---
 
-## [ ] Fase 7 — Aplicação completa em Docker, numa branch (27/11)
+## [x] Fase 7 — Aplicação completa em Docker, numa branch (27/11)
 
 Objetivo: qualquer computador com **apenas o Docker** roda o sistema inteiro.
 Antes de colar o prompt, confirme que a `main` está limpa (`git status`) e atualizada.
