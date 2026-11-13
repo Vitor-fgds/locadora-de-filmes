@@ -17,6 +17,11 @@ spring:
       pageable:
         max-page-size: 50
 
+  # Fase 7: o único handler de recursos estáticos é o SpaConfig (arquivo ou index.html).
+  web:
+    resources:
+      add-mappings: false
+
   jpa:
     hibernate:
       ddl-auto: validate # Flyway é o dono do schema; o Hibernate só confere
