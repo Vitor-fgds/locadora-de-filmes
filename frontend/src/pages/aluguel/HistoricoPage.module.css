@@ -1,0 +1,67 @@
+.discreto {
+  color: var(--grafite);
+}
+
+.bloco {
+  display: block;
+}
+
+.semQuebra {
+  white-space: nowrap;
+}
+
+.linha {
+  display: block;
+}
+
+.data {
+  display: block;
+}
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--espaco-3);
+}
+
+/* A caixa inteira (marca + texto) é o alvo de toque. */
+.marcar {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  min-block-size: var(--alvo-toque);
+  cursor: pointer;
+}
+
+.marcar input {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+  accent-color: var(--petroleo);
+}
+
+.cliente {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+@media (--md) {
+  /* Na tabela, cada data fica inteira numa linha; no cartão do celular ela pode quebrar. */
+  .data {
+    white-space: nowrap;
+  }
+
+  .filtros {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espaco-3) var(--espaco-6);
+  }
+
+  .cliente {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--espaco-4);
+  }
+}

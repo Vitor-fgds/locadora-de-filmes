@@ -25,8 +25,14 @@ public class FuncionarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public Page<FuncionarioResponse> listar(Pageable pageable) {
-        return funcionarioRepository.findAll(pageable).map(FuncionarioResponse::from);
+    public Page<FuncionarioResponse> listar(String nome, Pageable pageable) {
+        if (nome == null || nome.isBlank()) {
+            return funcionarioRepository.findAll(pageable).map(FuncionarioResponse::from);
+        }
+        String termo = nome.trim();
+        return funcionarioRepository
+                .findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase(termo, termo, pageable)
+                .map(FuncionarioResponse::from);
     }
 
     public FuncionarioResponse buscar(Integer id) {

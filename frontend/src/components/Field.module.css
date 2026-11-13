@@ -1,0 +1,26 @@
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+}
+
+.campo label {
+  font-weight: 600;
+}
+
+.dica {
+  color: var(--grafite);
+  font-size: var(--texto-pequeno);
+}
+
+.erro {
+  color: var(--erro);
+  font-size: var(--texto-pequeno);
+  font-weight: 600;
+}
+
+@media (--md) {
+  .inteiro {
+    grid-column: 1 / -1;
+  }
+}

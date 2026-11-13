@@ -1,0 +1,15 @@
+.caixa {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+  max-inline-size: 28rem;
+}
+
+.caixa label {
+  font-weight: 600;
+}
+
+.dica {
+  color: var(--grafite);
+  font-size: var(--texto-pequeno);
+}

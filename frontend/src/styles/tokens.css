@@ -1,0 +1,66 @@
+/* Identidade "Acervo": ficha de arquivo de uma coleção de filmes.
+   Papel frio, tinta verde-escura, ação em azul-petróleo; âmbar só para atraso e multa. */
+:root {
+  /* Cores */
+  --papel: #f4f6f5;
+  --superficie: #ffffff;
+  --tinta: #1b2422;
+  --grafite: #59645f;
+  --linha: #d3dad6;
+  --linha-forte: #9aa6a0;
+
+  --petroleo: #17545a;
+  --petroleo-escuro: #0f3f44;
+  --petroleo-suave: #e3eeee;
+
+  --ambar: #b7791f;
+  --ambar-suave: #fbf1dc;
+  --ambar-texto: #7a4e0e;
+
+  --disponivel: #2f6b4f;
+  --erro: #a4271f;
+  --erro-suave: #fbeceb;
+
+  /* Tipografia */
+  --fonte-titulo: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --fonte-ui: 'Atkinson Hyperlegible Next Variable', system-ui, sans-serif;
+
+  /* Escala fluida: interpola entre 320 px e 1440 px de largura */
+  --texto-pequeno: 0.875rem;
+  --texto-base: clamp(1rem, 0.9821rem + 0.0893vw, 1.0625rem);
+  --texto-h3: clamp(1.125rem, 1.0714rem + 0.2679vw, 1.3125rem);
+  --texto-h2: clamp(1.3125rem, 1.2589rem + 0.2679vw, 1.5rem);
+  --texto-h1: clamp(1.75rem, 1.6071rem + 0.7143vw, 2.25rem);
+  --texto-marca: clamp(2.25rem, 2.0357rem + 1.0714vw, 3rem);
+
+  --entrelinha: 1.55;
+  --entrelinha-titulo: 1.15;
+  --medida: 70ch; /* largura máxima de texto corrido */
+
+  /* Espaçamento (base de 4 px) */
+  --espaco-1: 0.25rem;
+  --espaco-2: 0.5rem;
+  --espaco-3: 0.75rem;
+  --espaco-4: 1rem;
+  --espaco-5: 1.5rem;
+  --espaco-6: 2rem;
+  --espaco-7: 3rem;
+  --espaco-8: 4rem;
+  --espaco-9: 6rem;
+  --margem-pagina: clamp(1rem, 4vw, 2rem);
+
+  /* Forma */
+  --raio-controle: 3px;
+  --raio-painel: 8px;
+  --sombra-sobreposicao: 0 12px 32px rgb(27 36 34 / 0.22);
+
+  /* Alvo de toque mínimo (WCAG / CLAUDE.md) */
+  --alvo-toque: 2.75rem; /* 44 px */
+
+  /* Layout */
+  --largura-menu: 16rem;
+  --largura-conteudo: 72rem;
+
+  /* Perfuração de película: o elemento marcante do sistema */
+  --perfuracao-passo: 1.5rem;
+}

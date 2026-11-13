@@ -1,0 +1,66 @@
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-5);
+  min-block-size: 100%;
+  padding: var(--espaco-5) var(--espaco-4);
+}
+
+.marca {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: var(--texto-h2);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.nav ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  min-block-size: var(--alvo-toque);
+  padding: var(--espaco-2) var(--espaco-3);
+  border-radius: var(--raio-controle);
+  color: var(--tinta);
+  text-decoration: none;
+}
+
+.link:hover {
+  background: var(--papel);
+}
+
+.ativo {
+  background: var(--petroleo-suave);
+  color: var(--petroleo-escuro);
+  font-weight: 600;
+}
+
+.usuario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+  margin-block-start: auto; /* gruda no rodapé do menu */
+  padding-block-start: var(--espaco-4);
+  border-block-start: 1px solid var(--linha);
+}
+
+.usuario button {
+  margin-block-start: var(--espaco-3);
+}
+
+.nome {
+  font-weight: 600;
+}
+
+.perfil {
+  color: var(--grafite);
+  font-size: var(--texto-pequeno);
+}

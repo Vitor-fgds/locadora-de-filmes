@@ -20,8 +20,14 @@ public class AtorService {
         this.atorRepository = atorRepository;
     }
 
-    public Page<AtorResponse> listar(Pageable pageable) {
-        return atorRepository.findAll(pageable).map(AtorResponse::from);
+    public Page<AtorResponse> listar(String nome, Pageable pageable) {
+        if (nome == null || nome.isBlank()) {
+            return atorRepository.findAll(pageable).map(AtorResponse::from);
+        }
+        String termo = nome.trim();
+        return atorRepository
+                .findByPrimeiroNomeContainingIgnoreCaseOrSobrenomeContainingIgnoreCase(termo, termo, pageable)
+                .map(AtorResponse::from);
     }
 
     public AtorResponse buscar(Integer id) {

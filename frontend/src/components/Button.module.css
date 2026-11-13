@@ -1,0 +1,64 @@
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-2);
+  min-block-size: var(--alvo-toque);
+  min-inline-size: var(--alvo-toque);
+  padding: var(--espaco-2) var(--espaco-4);
+  border: 1px solid transparent;
+  border-radius: var(--raio-controle);
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+}
+
+.botao:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.primario {
+  background: var(--petroleo);
+  color: #fff;
+}
+.primario:hover:not(:disabled) {
+  background: var(--petroleo-escuro);
+}
+
+.secundario {
+  background: var(--superficie);
+  color: var(--petroleo);
+  border-color: var(--linha-forte);
+}
+.secundario:hover:not(:disabled) {
+  background: var(--petroleo-suave);
+}
+
+.perigo {
+  background: var(--erro);
+  color: #fff;
+}
+.perigo:hover:not(:disabled) {
+  background: #831e18;
+}
+
+.link {
+  text-decoration: none;
+}
+
+.giro {
+  inline-size: 1em;
+  block-size: 1em;
+  border: 2px solid currentcolor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: gira 0.8s linear infinite;
+}
+
+@keyframes gira {
+  to {
+    transform: rotate(360deg);
+  }
+}

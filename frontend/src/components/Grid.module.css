@@ -1,0 +1,6 @@
+.grid {
+  display: grid;
+  gap: var(--gap);
+  /* min(100%, …) impede estouro em telas mais estreitas que a coluna mínima (320 px). */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min)), 1fr));
+}

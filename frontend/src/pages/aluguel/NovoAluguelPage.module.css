@@ -1,0 +1,95 @@
+.titulo {
+  margin-block-end: var(--espaco-4);
+  font-size: var(--texto-h2);
+}
+
+.discreto {
+  color: var(--grafite);
+}
+
+.resumo {
+  margin: 0;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  background: var(--superficie);
+}
+
+/* Cada linha: rótulo e valor; o botão "Trocar" vai para baixo no celular e para a direita no tablet. */
+.linha {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espaco-1) var(--espaco-4);
+  align-items: center;
+  padding: var(--espaco-3) var(--espaco-4);
+}
+
+.linha + .linha {
+  border-block-start: 1px solid var(--linha);
+}
+
+.linha dt {
+  color: var(--grafite);
+  font-size: var(--texto-pequeno);
+}
+
+.linha dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.linha button {
+  justify-self: start;
+  margin-block-start: var(--espaco-2);
+}
+
+.fim,
+.voltar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+.exemplares {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  gap: var(--espaco-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.exemplar {
+  inline-size: 100%;
+  min-block-size: var(--alvo-toque);
+  padding: var(--espaco-2) var(--espaco-4);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.exemplar:hover {
+  border-color: var(--petroleo);
+  background: var(--petroleo-suave);
+}
+
+@media (--md) {
+  .linha {
+    grid-template-columns: 9rem minmax(0, 1fr) auto;
+  }
+
+  .linha dt {
+    font-size: var(--texto-base);
+  }
+
+  .linha button {
+    justify-self: end;
+    margin-block-start: 0;
+  }
+
+  .fim,
+  .voltar {
+    flex-direction: row;
+  }
+}

@@ -1,0 +1,39 @@
+.pagina {
+  display: grid;
+  place-items: center;
+  min-block-size: 100dvh;
+  padding: var(--margem-pagina);
+}
+
+.painel {
+  position: relative;
+  inline-size: 100%;
+  max-inline-size: 26rem;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  background: var(--superficie);
+  overflow: hidden; /* a tira de perfurações respeita o canto arredondado */
+}
+
+.conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+  padding: var(--espaco-6) var(--espaco-5) var(--espaco-6) calc(1.25rem + var(--espaco-5));
+}
+
+.marca {
+  font-size: var(--texto-marca);
+  line-height: 1;
+}
+
+.subtitulo {
+  margin-block-end: var(--espaco-3);
+  color: var(--grafite);
+}
+
+@media (--sm) {
+  .conteudo {
+    padding: var(--espaco-7) var(--espaco-6) var(--espaco-7) calc(1.25rem + var(--espaco-6));
+  }
+}

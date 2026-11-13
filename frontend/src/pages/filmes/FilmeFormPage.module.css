@@ -1,0 +1,14 @@
+.descricao {
+  inline-size: 100%;
+  min-block-size: 8rem;
+  padding: var(--espaco-2) var(--espaco-3);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  resize: vertical;
+}
+
+.descricao[aria-invalid="true"] {
+  border-color: var(--erro);
+  border-width: 2px;
+}

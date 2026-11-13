@@ -1,0 +1,25 @@
+.alerta {
+  padding: var(--espaco-3) var(--espaco-4);
+  border: 1px solid;
+  border-inline-start-width: 4px;
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+}
+
+.erro {
+  border-color: var(--erro);
+  background: var(--erro-suave);
+  color: #6f1a14;
+}
+
+.sucesso {
+  border-color: var(--disponivel);
+  background: #e8f3ed;
+  color: #1f4d38;
+}
+
+.aviso {
+  border-color: var(--ambar);
+  background: var(--ambar-suave);
+  color: var(--ambar-texto);
+}

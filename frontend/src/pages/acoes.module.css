@@ -1,0 +1,6 @@
+/* Botões de ação dentro de uma célula de tabela (Editar, Excluir…). */
+.acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-2);
+}
