@@ -5,17 +5,21 @@ Interface web do sistema de locadora: React 19 + Vite + TypeScript, responsiva d
 ![React](https://img.shields.io/badge/React-19-149eca?style=flat-square)
 ![Vite](https://img.shields.io/badge/Vite-8-646cff?style=flat-square)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat-square)
+![React Router](https://img.shields.io/badge/React_Router-7-ca4245?style=flat-square)
+![TanStack Query](https://img.shields.io/badge/TanStack_Query-5-ff4154?style=flat-square)
 
 ## Sumário
 
 - [Visão geral](#visão-geral)
 - [Pré-requisitos](#pré-requisitos)
 - [Início rápido](#início-rápido)
+- [Configuração](#configuração)
 - [Como usar](#como-usar)
 - [Estrutura de pastas](#estrutura-de-pastas)
 - [Telas e rotas](#telas-e-rotas)
 - [Identidade visual](#identidade-visual)
 - [Solução de problemas](#solução-de-problemas)
+- [Autores](#autores)
 
 ## Visão geral
 
@@ -41,7 +45,14 @@ flowchart LR
 
 ## Início rápido
 
-1. Suba o banco e o backend (na raiz do projeto, veja `docs/BANCO_DE_DADOS.md`).
+> [!TIP]
+> Só quer **usar** o sistema? Não precisa deste README: `docker compose --profile app up -d --build`
+> sobe tudo (inclusive este frontend, já compilado) em <http://localhost:8080>. Veja o
+> [README da raiz](../README.md).
+
+Para **desenvolver** o frontend:
+
+1. Suba o banco e o backend em modo dev (passos em [`backend/README.md`](../backend/README.md#início-rápido)).
 2. Instale as dependências:
 
    ```bash
@@ -65,6 +76,15 @@ Outros comandos:
 npm run build   # confere os tipos e gera dist/
 npm run lint    # oxlint
 ```
+
+## Configuração
+
+O frontend não tem variáveis de ambiente. O único ajuste é o proxy do Vite
+(`vite.config.ts`): em dev, `/api` é repassado para `http://localhost:8080`. Assim o navegador
+fala com uma origem só, e os cookies de sessão e `XSRF-TOKEN` funcionam sem CORS.
+
+No modo Docker não há Vite: o `npm run build` roda dentro do `backend/Dockerfile`, o resultado
+vira recurso estático do jar e o Spring (`SpaConfig`) o serve na mesma origem da API.
 
 ## Como usar
 
@@ -154,3 +174,11 @@ O backend não está rodando na porta 8080. Suba-o antes (`./mvnw -q spring-boot
 
 A sessão expirou ou a conta mudou de perfil. Entre de novo: você volta para a tela em que estava.
 </details>
+
+## Autores
+
+- João Marcos Campelo
+- Vitor Fagundes
+- Isabella Baracho
+- Catarina Cotta Lannes
+- Dayvid Eduardo

@@ -12,7 +12,7 @@
 | RF05 | Manter clientes | ATENDENTE, ADMIN (excluir só ADMIN) | INSERT/SELECT/UPDATE/DELETE | 2d |
 | RF06 | Manter funcionários e seus perfis | ADMIN | INSERT/UPDATE/DELETE, senha em BCrypt | 2d |
 | RF07 | **Registrar aluguel**: valida exemplar disponível, cria aluguel e marca exemplar como alugado | ATENDENTE, ADMIN | SELECT … FOR UPDATE → INSERT → UPDATE em **transação** (`@Transactional`) | 2a |
-| RF08 | **Registrar devolução**: grava data, calcula multa por atraso e libera o exemplar | ATENDENTE, ADMIN | **Stored procedure** `sp_registrar_devolucao(p_id_aluguel, p_data_devolucao)` | 2a, 2c |
+| RF08 | **Registrar devolução**: grava data, calcula multa por atraso e libera o exemplar | ATENDENTE, ADMIN | **Stored procedure** `sp_registrar_devolucao(p_id_aluguel, p_data_devolucao, INOUT p_valor_multa)` | 2a, 2c |
 | RF09 | Consultar exemplares disponíveis por filme | todos | SELECT com **JOIN** filme–exemplar | 2b |
 | RF10 | Histórico de aluguéis com cliente, funcionário e filme | todos | **JOIN** aluguel–cliente–funcionário–exemplar–filme | 2b |
 | RF11 | Relatórios do BD1: faturamento por funcionário, exemplares por filme, filmes com mais de um ator | ADMIN | JOIN + GROUP BY / SUM / HAVING | 2b |
