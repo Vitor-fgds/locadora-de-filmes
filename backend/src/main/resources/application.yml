@@ -34,6 +34,17 @@ spring:
   flyway:
     locations: classpath:db/migration
 
+# Fase 7: healthcheck do container. Só /actuator/health é exposto, sem detalhes (não vaza
+# estado interno); o Security libera apenas esse GET (SecurityConfig).
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
 # Cookie de sessão (JSESSIONID): HttpOnly impede o JavaScript de ler; SameSite=Lax não
 # envia o cookie em POSTs vindos de outros sites (segunda barreira além do CSRF token).
 # Secure: o navegador só envia o cookie por HTTPS. Seguro por padrão; o perfil dev
