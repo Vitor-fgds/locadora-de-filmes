@@ -1,0 +1,22 @@
+.caixa {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-5) 0;
+  color: var(--grafite);
+}
+
+.giro {
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+  border: 2px solid var(--petroleo);
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  animation: gira 0.8s linear infinite;
+}
+
+@keyframes gira {
+  to {
+    transform: rotate(360deg);
+  }
+}

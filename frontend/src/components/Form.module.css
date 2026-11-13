@@ -1,0 +1,37 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-5);
+}
+
+.grade {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espaco-4);
+}
+
+.acoes {
+  display: flex;
+  flex-direction: column-reverse; /* ação principal em cima, ao alcance do polegar */
+  gap: var(--espaco-3);
+}
+
+.acoes > * {
+  inline-size: 100%;
+}
+
+@media (--md) {
+  .grade {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--espaco-4) var(--espaco-5);
+  }
+
+  .acoes {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .acoes > * {
+    inline-size: auto;
+  }
+}

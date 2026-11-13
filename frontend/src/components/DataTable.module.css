@@ -1,0 +1,140 @@
+.mensagem {
+  padding: var(--espaco-5) 0;
+  color: var(--grafite);
+}
+
+.rolagem {
+  max-inline-size: 100%;
+  overflow-x: auto; /* rede de segurança entre 768 e 1024 px */
+}
+
+.tabela {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Visível só para leitores de tela no celular; aparece como título da tabela a partir de 768 px. */
+.legenda {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Celular: o cabeçalho sai da vista (continua para leitores de tela) e cada linha vira um cartão. */
+.tabela thead {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.tabela,
+.tabela tbody,
+.tabela tr,
+.tabela td {
+  display: block;
+}
+
+.tabela tr {
+  margin-block-end: var(--espaco-3);
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  background: var(--superficie);
+}
+
+.tabela td {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 38%) minmax(0, 1fr);
+  gap: var(--espaco-3);
+  padding: var(--espaco-2) var(--espaco-4);
+  text-align: start;
+}
+
+.tabela td + td {
+  border-block-start: 1px solid var(--linha);
+}
+
+.tabela td::before {
+  content: attr(data-rotulo);
+  color: var(--grafite);
+  font-weight: 600;
+}
+
+@media (--md) {
+  .legenda {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+    caption-side: top;
+    padding-block-end: var(--espaco-3);
+    text-align: start;
+    color: var(--grafite);
+    font-size: var(--texto-pequeno);
+  }
+
+  .tabela {
+    display: table;
+  }
+
+  .tabela thead {
+    position: static;
+    inline-size: auto;
+    block-size: auto;
+    overflow: visible;
+    clip-path: none;
+    display: table-header-group;
+  }
+
+  .tabela tbody {
+    display: table-row-group;
+  }
+
+  .tabela tr {
+    display: table-row;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .tabela td,
+  .tabela th {
+    display: table-cell;
+    padding: var(--espaco-3) var(--espaco-4);
+    border-block-end: 1px solid var(--linha);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .tabela td + td {
+    border-block-start: 0;
+  }
+
+  .tabela td::before {
+    content: none;
+  }
+
+  .tabela th {
+    background: var(--petroleo-suave);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* Textos longos sem espaço (email) quebram em vez de alargar a tabela. */
+  .tabela td {
+    overflow-wrap: anywhere;
+  }
+
+  .tabela .direita {
+    text-align: end;
+    white-space: nowrap; /* "R$ 12,50" nunca parte em duas linhas */
+  }
+}

@@ -1,0 +1,38 @@
+.dados {
+  margin: 0;
+  border: 1px solid var(--linha);
+  border-radius: var(--raio-painel);
+  background: var(--superficie);
+}
+
+.dados > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espaco-1);
+  padding: var(--espaco-3) var(--espaco-4);
+}
+
+.dados > div + div {
+  border-block-start: 1px solid var(--linha);
+}
+
+.dados dt {
+  color: var(--grafite);
+  font-size: var(--texto-pequeno);
+}
+
+.dados dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+@media (--sm) {
+  .dados > div {
+    grid-template-columns: 9rem minmax(0, 1fr);
+    gap: var(--espaco-4);
+  }
+
+  .dados dt {
+    font-size: var(--texto-base);
+  }
+}

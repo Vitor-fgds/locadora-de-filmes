@@ -1,0 +1,7 @@
+/* Breakpoints do projeto (mobile-first: use sempre min-width).
+   Injetado em todo CSS por postcss.config.js — use direto: @media (--md) { ... }
+   Espelho em breakpoints.ts; mantenha os dois iguais. */
+@custom-media --sm (min-width: 640px);
+@custom-media --md (min-width: 768px);
+@custom-media --lg (min-width: 1024px);
+@custom-media --xl (min-width: 1280px);

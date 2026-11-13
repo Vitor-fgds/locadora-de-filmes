@@ -1,0 +1,141 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100dvh;
+}
+
+/* ---------- Celular e tablet: barra superior + drawer ---------- */
+
+.lateral {
+  display: none;
+}
+
+.barra {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-4);
+  padding: var(--espaco-2) var(--margem-pagina);
+  border-block-end: 1px solid var(--linha);
+  background: var(--superficie);
+}
+
+.botaoMenu {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  min-block-size: var(--alvo-toque);
+  min-inline-size: var(--alvo-toque);
+  padding: 0 var(--espaco-3);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio-controle);
+  background: var(--superficie);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botaoMenu:hover {
+  background: var(--petroleo-suave);
+}
+
+/* Três traços desenhados com uma só sombra repetida. */
+.hamburguer {
+  inline-size: 1.125rem;
+  block-size: 2px;
+  background: currentcolor;
+  box-shadow:
+    0 -6px 0 currentcolor,
+    0 6px 0 currentcolor;
+}
+
+.marcaBarra {
+  font-family: var(--fonte-titulo);
+  font-size: var(--texto-h3);
+  font-weight: 600;
+}
+
+.drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  inline-size: min(20rem, 88vw);
+  block-size: 100dvh;
+  max-inline-size: none;
+  max-block-size: none;
+  margin: 0;
+  padding: 0;
+  padding-inline-end: 1.25rem; /* espaço da tira de perfurações */
+  border: 0;
+  border-start-end-radius: var(--raio-painel);
+  border-end-end-radius: var(--raio-painel);
+  background: var(--superficie);
+  color: var(--tinta);
+  overflow-y: auto;
+  box-shadow: var(--sombra-sobreposicao);
+}
+
+.drawer[open] {
+  animation: entra 0.2s ease-out;
+}
+
+.drawer::backdrop {
+  background: rgb(27 36 34 / 0.5);
+}
+
+@keyframes entra {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+.pular {
+  position: absolute;
+  inset-inline-start: var(--espaco-3);
+  inset-block-start: var(--espaco-3);
+  z-index: 20;
+  padding: var(--espaco-3) var(--espaco-4);
+  border-radius: var(--raio-controle);
+  background: var(--petroleo);
+  color: #fff;
+  transform: translateY(-200%);
+}
+
+.pular:focus {
+  transform: none;
+}
+
+.conteudo {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.conteudo:focus {
+  outline: none;
+}
+
+/* ---------- Desktop: menu lateral fixo ---------- */
+
+@media (--lg) {
+  .shell {
+    display: grid;
+    grid-template-columns: var(--largura-menu) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .lateral {
+    position: sticky;
+    inset-block-start: 0;
+    display: block;
+    block-size: 100dvh;
+    padding-inline-end: 1.25rem;
+    background: var(--superficie);
+    overflow-y: auto;
+  }
+
+  /* No desktop o menu fica sempre à vista; barra e drawer saem. */
+  .barra,
+  .drawer {
+    display: none;
+  }
+}
