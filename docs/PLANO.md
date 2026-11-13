@@ -216,7 +216,7 @@ Se algo falhar, continue na branch com `/clear` e descreva o erro ao Claude Code
 
 ---
 
-## [ ] Fase 8 — Documentação e entrega (28–30/11)
+## [x] Fase 8 — Documentação e entrega (28–30/11)
 
 ```
 Use a skill readme-didatico. Escreva README.md (raiz, índice curto), backend/README.md
