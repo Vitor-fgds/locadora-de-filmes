@@ -1,11 +1,19 @@
-# [ROTEIRO-1c-CONEXAO] Único serviço: PostgreSQL 17. O backend (Fase 2) conecta via
-# DB_URL/DB_USER/DB_PASSWORD, as mesmas variáveis usadas aqui para criar o banco.
-# Porta do host em 55432 (não a padrão 5432) para não conflitar com um Postgres
+# [ROTEIRO-1c-CONEXAO] Dois serviços:
+#   postgres — PostgreSQL 17, sempre sobe:      docker compose up -d
+#   app      — API + frontend (profile "app"):  docker compose --profile app up -d --build
+# O backend conecta via DB_URL/DB_USER/DB_PASSWORD, as mesmas variáveis do .env que criam o banco.
+# Porta do banco no host em 55432 (não a padrão 5432) para não conflitar com um Postgres
 # local ou com outro projeto que já use a porta padrão nesta máquina.
+#
+# Nomes de container e volume derivam do nome do projeto (COMPOSE_PROJECT_NAME): no uso normal
+# continuam "locadora-postgres" e "locadora_pgdata"; com "-p outro-nome" tudo é isolado, e um
+# "down -v" do projeto de teste nunca apaga o banco de desenvolvimento.
+name: locadora
+
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: locadora-postgres
+    container_name: ${COMPOSE_PROJECT_NAME}-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${DB_NAME:?defina DB_NAME no .env (copie .env.example)}
@@ -15,12 +23,49 @@ services:
       - "127.0.0.1:55432:5432"
     volumes:
       - locadora_pgdata:/var/lib/postgresql/data
+    networks:
+      default:
+        # Dentro da rede do compose o banco é alcançado pelo host "db" (ver DB_URL do app).
+        aliases:
+          - db
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
+  app:
+    profiles: ["app"]
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # [ROTEIRO-1c-CONEXAO] No container o banco NÃO é localhost:55432 (porta publicada no
+      # host): é "db:5432", pela rede interna do compose. Por isso a URL é montada aqui e o
+      # DB_URL do .env (localhost, usado no dev) é ignorado. O parâmetro
+      # escapeSyntaxCallMode=callIfNoReturn é o mesmo do .env (CALL de stored procedure).
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}?escapeSyntaxCallMode=callIfNoReturn
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      # dev (padrão) = seed de demonstração + cookie de sessão sem Secure, para funcionar em
+      # http://localhost. Qualquer outro perfil roda só as migrations e exige HTTPS no login.
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-dev}
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      # Seed do perfil dev ("filesystem:../db/seed" com cwd /app => /db/seed).
+      - ./db/seed:/db/seed:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
 volumes:
   locadora_pgdata:
-    name: locadora_pgdata
+    name: ${COMPOSE_PROJECT_NAME}_pgdata
